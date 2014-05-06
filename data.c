@@ -64,6 +64,7 @@ car_t * data_load_car(SDL_Renderer * render,char * car_name)
 	car->w = 4.39;
 	car->h = 2.315;
 	car->a = 0.0; // Head to the right
+	car->ts= 90.0;
 
 	return car;
 }

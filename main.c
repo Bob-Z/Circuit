@@ -40,11 +40,16 @@ context_t context;
 
 char * config_path = NULL;
 
-double move_angle = 0.0;
+double angle_sign = 0.0;
+Uint32 angle_time = 0;
+map_t * map;
+car_t * car;
 
 static void screen_display(context_t * ctx)
 {
         SDL_Event event;
+	Uint32 time;
+	double angle;
 
         while( 1 ) {
 
@@ -58,7 +63,10 @@ static void screen_display(context_t * ctx)
                         sdl_keyboard_manager(&event);
                 }
 
-		item_set_angle(item_list->next,item_list->next->angle+=move_angle);
+		time = SDL_GetTicks();
+		angle = (double)(time-angle_time) * car[0].ts / 1000.0 * angle_sign;
+		angle_time = time;
+		item_set_angle(item_list->next,item_list->next->angle+=angle);
                 SDL_RenderClear(ctx->render);
 
                 sdl_blit_item_list(ctx,item_list);
@@ -73,19 +81,19 @@ static void screen_display(context_t * ctx)
 
 static void cb_key_left_down(void * arg)
 {
-	move_angle = -0.5;
+	angle_sign = -1.0;
 }
 static void cb_key_left_up(void * arg)
 {
-	move_angle = 0;
+	angle_sign = 0.0;
 }
 static void cb_key_right_down(void * arg)
 {
-	move_angle = +0.5;
+	angle_sign = 1.0;
 }
 static void cb_key_right_up(void * arg)
 {
-	move_angle = 0;
+	angle_sign = 0.0;
 }
 
 /**************************
@@ -131,8 +139,6 @@ int main (int argc, char **argv)
 	// Load graphics
 	item_t * item = NULL;
 	anim_t * anim[NUM_ANIM];
-	map_t * map;
-	car_t * car;
 
 	map = data_load_map(context.render,NULL);
 	anim[0] = map->picture;
