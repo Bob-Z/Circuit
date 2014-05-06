@@ -29,6 +29,8 @@ typedef struct item {
 	int x;	// For smooth animation
 	int y;	// For smooth animation
 	double angle;
+	double zoom_x;
+	double zoom_y;
 	int old_x;	// For smooth animation
 	int old_y;	// For smooth animation
 	Uint32 timer;	// For smooth animation
@@ -63,6 +65,8 @@ void item_set_anim(item_t * item, int x, int y,anim_t * anim);
 void item_set_smooth_anim(item_t * item, int x, int y,int old_x, int old_y, Uint32 timer, anim_t * anim);
 void item_set_tile(item_t * item, int x, int y);
 void item_set_angle(item_t * item, double a);
+void item_set_zoom_x(item_t * item, double a);
+void item_set_zoom_y(item_t * item, double a);
 void item_set_overlay(item_t * item, int overlay);
 void item_set_frame_normal(item_t * item, int num_frame);
 void item_set_frame_over(item_t * item, int num_frame);

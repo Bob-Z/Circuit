@@ -253,16 +253,13 @@ void sdl_loop_manager()
 	}
 }
 
-void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angle, int overlay)
+void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angle, double zoom_x, double zoom_y, int overlay)
 {
 	SDL_Rect r;
         int vx;
         int vy;
-	static double zoom = 1.0;
 
 	SDL_Rect DestR;
-
-	zoom-=0.0001;
 
 	if(overlay) {
 		r.x = rect->x;
@@ -278,10 +275,8 @@ void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angl
 	r.w = rect->w;
 	r.h = rect->h;
 
-	r.x *= zoom;
-	r.y *= zoom;
-	r.w *= zoom;
-	r.h *= zoom;
+	r.w *= zoom_x;
+	r.h *= zoom_y;
 
 	if( tex ) {
 //		if( SDL_RenderCopy(ctx->render,tex,NULL,&r) < 0) {
@@ -291,11 +286,11 @@ void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angl
 	}
 }
 
-int sdl_blit_anim(context_t * ctx,anim_t * anim, SDL_Rect * rect, double angle, int start, int end,int overlay)
+int sdl_blit_anim(context_t * ctx,anim_t * anim, SDL_Rect * rect, double angle, double zoom_x, double zoom_y, int start, int end,int overlay)
 {
 	Uint32 time = SDL_GetTicks();
 
-	sdl_blit_tex(ctx,anim->tex[anim->current_frame],rect,angle,overlay);
+	sdl_blit_tex(ctx,anim->tex[anim->current_frame],rect,angle,zoom_x, zoom_y,overlay);
 
 	if( anim->prev_time == 0 ) {
 		anim->prev_time = time;
@@ -341,7 +336,7 @@ void sdl_print_item(context_t * ctx,item_t * item)
 		SDL_FreeSurface(surf);
 	}
 
-	sdl_blit_tex(ctx,item->str_tex,&r,item->angle,item->overlay);
+	sdl_blit_tex(ctx,item->str_tex,&r,item->angle,item->zoom_x,item->zoom_y,item->overlay);
 }
 
 int sdl_blit_item(context_t * ctx,item_t * item)
@@ -362,9 +357,9 @@ int sdl_blit_item(context_t * ctx,item_t * item)
 		}
 
 		if( item->frame_normal == -1 ) {
-			sdl_blit_anim(ctx,item->anim,&item->rect,item->angle,item->anim_start,item->anim_end,item->overlay);
+			sdl_blit_anim(ctx,item->anim,&item->rect,item->angle,item->zoom_x,item->zoom_y,item->anim_start,item->anim_end,item->overlay);
 		} else {
-			sdl_blit_tex(ctx,item->anim->tex[item->frame_normal],&item->rect,item->angle,item->overlay);
+			sdl_blit_tex(ctx,item->anim->tex[item->frame_normal],&item->rect,item->angle,item->zoom_x,item->zoom_y,item->overlay);
 		}
 	}
 

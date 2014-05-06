@@ -25,10 +25,10 @@
 typedef struct map {
 	anim_t * picture;
 	/* Physical width e.g. 4 km.
-	This is independant of the picture pixel size (pixel may not be square
+	This is independant of the picture pixel size
 	You can use any unit, but the chosen unit must be the same for the other elements of the game */
-	double w;
-	double h;
+	double w; // Used to compute sprite zoom
+	double h; // unused
 } map_t;
 
 typedef struct car {
@@ -36,8 +36,8 @@ typedef struct car {
 	/* Physical width e.g. 4 km.
 	This is independant of the picture pixel size (pixel may not be square
 	You can use any unit, but the chosen unit must be the same for the other elements of the game */
-	double w;
-	double h;
+	double w; // Used to compute sprite zoom
+	double h; //unused
 } car_t;
 
 map_t * data_load_map(SDL_Renderer * render,char * map_name);

@@ -63,6 +63,8 @@ void item_init(item_t * item)
 	item->x=-1;
 	item->y=-1;
 	item->angle=0;
+	item->zoom_x=1.0;
+	item->zoom_y=1.0;
 	item->old_x=-1;
 	item->old_y=-1;
 	item->timer=0;
@@ -123,6 +125,16 @@ void item_set_tile(item_t * item, int x, int y)
 void item_set_angle(item_t * item, double a)
 {
 	item->angle = a;
+}
+
+void item_set_zoom_x(item_t * item, double a)
+{
+	item->zoom_x = a;
+}
+
+void item_set_zoom_y(item_t * item, double a)
+{
+	item->zoom_y = a;
 }
 
 void item_set_overlay(item_t * item, int overlay)

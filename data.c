@@ -31,8 +31,10 @@ map_t * data_load_map(SDL_Renderer * render,char * map_name)
 	strcat(tmp,"hungaroring_circuit02.jpg");
 	map->picture = anim_load(render,tmp);
 
-	map->w = 4000.0;
-	map->h = 3947.0;
+//	map->w = 4000.0;
+//	map->h = 3947.0;
+	map->w = 200.0;
+	map->h = 200.0;
 
 	return map;
 }
@@ -50,7 +52,7 @@ car_t * data_load_car(SDL_Renderer * render,char * car_name)
 	car->picture = anim_load(render,tmp);
 
 	car->w = 4.39;
-	car->h = 2.31;
+	car->h = 2.315;
 
 	return car;
 }
