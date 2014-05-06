@@ -36,6 +36,14 @@ map_t * data_load_map(SDL_Renderer * render,char * map_name)
 	map->w = 200.0;
 	map->h = 200.0;
 
+#define NUM_START 1
+	map->num_start = NUM_START;
+	map->start_x = malloc(sizeof(int) * NUM_START);
+	map->start_y = malloc(sizeof(int) * NUM_START);
+
+	map->start_x[0] = 1613;
+	map->start_y[0] = 3348;
+
 	return map;
 }
 

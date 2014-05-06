@@ -29,6 +29,9 @@ typedef struct map {
 	You can use any unit, but the chosen unit must be the same for the other elements of the game */
 	double w; // Used to compute sprite zoom
 	double h; // unused
+	int num_start; // Number of starting plot
+	int * start_x; // Start coordinate in pixel
+	int * start_y;
 } map_t;
 
 typedef struct car {

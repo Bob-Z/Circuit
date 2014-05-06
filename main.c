@@ -123,12 +123,12 @@ int main (int argc, char **argv)
 	item_list = item_list_add(NULL);
 	item_set_anim(item_list,0,0,anim[0]);
 	item = item_list_add(item_list);
-	item_set_anim(item,0,0,anim[1]);
+	item_set_anim(item,map->start_x[0],map->start_y[0],anim[1]);
 	item_set_zoom_x(item,car->w / map->w);
 	item_set_zoom_y(item,car->w / map->w);
 
-	sdl_set_virtual_x(0);
-	sdl_set_virtual_y(0);
+	sdl_set_virtual_x(item->rect.x);
+	sdl_set_virtual_y(item->rect.y);
 	//Run the main loop
 	screen_display(&context);
 
