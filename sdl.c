@@ -28,10 +28,13 @@ static void (*keyboard_cb)(void * arg) = NULL;
 
 static int virtual_x = 0;
 static int virtual_y = 0;
+static double virtual_z = 1.0;
 static int old_vx = 0;
 static int old_vy = 0;
+static double old_vz = 1.0;
 static int current_vx = 0;
 static int current_vy = 0;
+static double current_vz = 1.0;
 static Uint32 virtual_tick = 0;
 
 static keycb_t * key_callback = NULL;
@@ -89,8 +92,12 @@ static void get_virtual(context_t * ctx,int * vx, int * vy)
 	int sy;
 
 	SDL_GetRendererOutputSize(ctx->render,&sx,&sy);
-	*vx = (sx/2)-current_vx;
-	*vy = (sy/2)-current_vy;
+
+	sx /= current_vz;
+	sy /= current_vz;
+
+	*vx = current_vx - (sx/2);
+	*vy = current_vy - (sy/2);
 }
 
 void sdl_mouse_manager(context_t * ctx, SDL_Event * event, item_t * item_list)
@@ -131,8 +138,8 @@ void sdl_mouse_manager(context_t * ctx, SDL_Event * event, item_t * item_list)
 					continue;
 				}
 				get_virtual(ctx,&vx,&vy);
-				rect.x = event->motion.x - vx;
-				rect.y = event->motion.y - vy;
+				rect.x = event->motion.x + vx;
+				rect.y = event->motion.y + vy;
 			}
 
 			I->current_frame = I->frame_normal;
@@ -241,8 +248,9 @@ void sdl_loop_manager()
 
 	timer = SDL_GetTicks();
 	if( virtual_tick + VIRTUAL_ANIM_DURATION > timer ) {
-		current_vx = (int)((float)old_vx + (float)( virtual_x - old_vx ) * (float)(timer - virtual_tick) / (float)VIRTUAL_ANIM_DURATION);
-		current_vy = (int)((float)old_vy + (float)( virtual_y - old_vy ) * (float)(timer - virtual_tick) / (float)VIRTUAL_ANIM_DURATION);
+		current_vx = (int)((double)old_vx + (double)( virtual_x - old_vx ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION);
+		current_vy = (int)((double)old_vy + (double)( virtual_y - old_vy ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION);
+		current_vz = (int)((double)old_vz + (double)( virtual_z - old_vz ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION);
 	}
 	else {
 		old_vx = virtual_x;
@@ -250,6 +258,9 @@ void sdl_loop_manager()
 
 		old_vy = virtual_y;
 		current_vy = virtual_y;
+
+		old_vz = virtual_z;
+		current_vz = virtual_z;
 	}
 }
 
@@ -268,15 +279,22 @@ void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angl
 	else {
 		get_virtual(ctx,&vx,&vy);
 
-		r.x = rect->x + vx;
-		r.y = rect->y + vy;
+		r.x = rect->x - vx;
+		r.y = rect->y - vy;
 	}
 
 	r.w = rect->w;
 	r.h = rect->h;
 
+	/* Sprite zoom */
 	r.w *= zoom_x;
 	r.h *= zoom_y;
+
+	/* Virtual zoom */
+	r.x *= current_vz;
+	r.y *= current_vz;
+	r.w *= current_vz;
+	r.h *= current_vz;
 
 	if( tex ) {
 //		if( SDL_RenderCopy(ctx->render,tex,NULL,&r) < 0) {
@@ -346,8 +364,8 @@ int sdl_blit_item(context_t * ctx,item_t * item)
 	if(item->anim) {
 		if( item->timer ) {
 			if( item->timer + VIRTUAL_ANIM_DURATION > timer) {
-				item->rect.x = (int)((float)item->old_x + (float)(item->x - item->old_x) * (float)(timer - item->timer) / (float)VIRTUAL_ANIM_DURATION);
-				item->rect.y = (int)((float)item->old_y + (float)(item->y - item->old_y) * (float)(timer - item->timer) / (float)VIRTUAL_ANIM_DURATION);
+				item->rect.x = (int)((double)item->old_x + (double)(item->x - item->old_x) * (double)(timer - item->timer) / (double)VIRTUAL_ANIM_DURATION);
+				item->rect.y = (int)((double)item->old_y + (double)(item->y - item->old_y) * (double)(timer - item->timer) / (double)VIRTUAL_ANIM_DURATION);
 			}
 			else {
 				item->rect.x =item->x;
@@ -477,6 +495,15 @@ void sdl_set_virtual_y(int y)
 	}
 }
 
+void sdl_set_virtual_z(double z)
+{
+	if( z != virtual_z ) {
+		old_vz = current_vz;
+		virtual_z = z;
+		virtual_tick = SDL_GetTicks();
+	}
+}
+
 void sdl_force_virtual_x(int x)
 {
 	virtual_x = x;
@@ -487,7 +514,14 @@ void sdl_force_virtual_y(int y)
 {
 	virtual_y = y;
 	current_vy = y;
-	old_vx =y;
+	old_vy =y;
+}
+
+void sdl_force_virtual_z(double z)
+{
+	virtual_z = z;
+	current_vz = z;
+	old_vz =z;
 }
 
 keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*))
