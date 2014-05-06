@@ -50,8 +50,8 @@ printf("sin(car->a) = %f\n",sin(car->a / 180.0 * M_PI));
 
 	item_set_angle(item,car->a);
 
-	sdl_set_virtual_x(UNIT_TO_PIX(car->x));
-	sdl_set_virtual_y(UNIT_TO_PIX(car->y));
+	sdl_force_virtual_x(UNIT_TO_PIX(car->x));
+	sdl_force_virtual_y(UNIT_TO_PIX(car->y));
 }
 static void screen_display(sdl_context_t * ctx)
 {
