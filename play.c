@@ -28,7 +28,7 @@ item_t * item_list = NULL;
 double angle_sign = 0.0;
 int accel = 0;
 int decel = 0;
-Uint32 angle_time = 0;
+Uint32 old_time = 0;
 map_t * map;
 car_t * car;
 
@@ -72,20 +72,20 @@ static void screen_display(sdl_context_t * ctx)
                 }
 
 		time = SDL_GetTicks();
-		car[0].a += (double)(time-angle_time) * car[0].ts / 1000.0 * angle_sign;
+		car[0].a += (double)(time-old_time) * car[0].ts / 1000.0 * angle_sign;
 		if(accel) {
-			car[0].speed += (double)(time-angle_time) * car[0].accel / 1000.0;
+			car[0].speed += (double)(time-old_time) * car[0].accel / 1000.0;
 			if(car[0].speed > car[0].max_speed) {
 				car[0].speed = car[0].max_speed;
 			}
 		}
 		if(decel) {
-			car[0].speed -= (double)(time-angle_time) * car[0].accel / 1000.0;
+			car[0].speed -= (double)(time-old_time) * car[0].accel / 1000.0;
 			if(car[0].speed < -car[0].max_speed) {
 				car[0].speed = -car[0].max_speed;
 			}
 		}
-		angle_time = time;
+		old_time = time;
 
 		calculate_new_pos(item_list->next,&car[0]);
 
