@@ -60,6 +60,7 @@ typedef struct item {
 item_t * item_list_add(item_t * item_list);
 void item_list_free(item_t * item_list);
 void item_init(item_t * item);
+void item_set_pos(item_t * item, int x, int y);
 void item_set_frame(item_t * item, int x, int y,anim_t * anim);
 void item_set_anim(item_t * item, int x, int y,anim_t * anim);
 void item_set_smooth_anim(item_t * item, int x, int y,int old_x, int old_y, Uint32 timer, anim_t * anim);

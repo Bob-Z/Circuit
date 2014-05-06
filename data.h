@@ -42,8 +42,14 @@ typedef struct car {
 	You can use any unit, but the chosen unit must be the same for the other elements of the game */
 	double w; // Used to compute sprite zoom
 	double h; //unused
+	double x;
+	double y;
 	double a; // orientation of the car in the picture
-	double ts; // turning speed in degrees/s
+	double ts; // turning speed in degrees/second
+	double accel; // in map_unit / second
+	double decel; // in map_unit / second
+	double max_speed; // in map_unit / second
+	double speed;
 } car_t;
 
 map_t * data_load_map(SDL_Renderer * render,char * map_name);

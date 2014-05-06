@@ -89,10 +89,14 @@ void item_init(item_t * item)
 	item->next=NULL;
 }
 
-void item_set_frame(item_t * item, int x, int y,anim_t * anim)
+void item_set_pos(item_t * item, int x, int y)
 {
 	item->rect.x = x;
 	item->rect.y = y;
+}
+void item_set_frame(item_t * item, int x, int y,anim_t * anim)
+{
+	item_set_pos(item,x,y);
 	if( anim ) {
 		item->rect.w = anim->w;
 		item->rect.h = anim->h;
