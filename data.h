@@ -32,6 +32,7 @@ typedef struct map {
 	int num_start; // Number of starting plot
 	int * start_x; // Start coordinate in pixel
 	int * start_y;
+	double * start_a;  // Car angle on start-up line
 } map_t;
 
 typedef struct car {
@@ -41,6 +42,7 @@ typedef struct car {
 	You can use any unit, but the chosen unit must be the same for the other elements of the game */
 	double w; // Used to compute sprite zoom
 	double h; //unused
+	double a; // orientation of the car
 } car_t;
 
 map_t * data_load_map(SDL_Renderer * render,char * map_name);

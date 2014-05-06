@@ -40,9 +40,11 @@ map_t * data_load_map(SDL_Renderer * render,char * map_name)
 	map->num_start = NUM_START;
 	map->start_x = malloc(sizeof(int) * NUM_START);
 	map->start_y = malloc(sizeof(int) * NUM_START);
+	map->start_a = malloc(sizeof(double) * NUM_START);
 
 	map->start_x[0] = 1613;
 	map->start_y[0] = 3348;
+	map->start_a[0] = 218.0;
 
 	return map;
 }
@@ -61,6 +63,7 @@ car_t * data_load_car(SDL_Renderer * render,char * car_name)
 
 	car->w = 4.39;
 	car->h = 2.315;
+	car->a = 0.0; // Head to the right
 
 	return car;
 }

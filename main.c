@@ -56,7 +56,7 @@ static void screen_display(context_t * ctx)
                         sdl_keyboard_manager(&event);
                 }
 
-		item_set_angle(item_list->next,item_list->next->angle+=0.1);
+//		item_set_angle(item_list->next,item_list->next->angle+=0.1);
                 SDL_RenderClear(ctx->render);
 
                 sdl_blit_item_list(ctx,item_list);
@@ -126,6 +126,7 @@ int main (int argc, char **argv)
 	item_set_anim(item,map->start_x[0],map->start_y[0],anim[1]);
 	item_set_zoom_x(item,car->w / map->w);
 	item_set_zoom_y(item,car->w / map->w);
+	item_set_angle(item, map->start_a[0] - car->a);
 
 	sdl_set_virtual_x(item->rect.x);
 	sdl_set_virtual_y(item->rect.y);
