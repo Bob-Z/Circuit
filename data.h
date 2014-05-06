@@ -22,6 +22,9 @@
 
 #include "anim.h"
 
+// Number of seconds to forsee the position
+#define FUTUR_TIME (1.0)
+
 typedef struct map {
 	anim_t * picture;
 	/* Physical width e.g. 4 km.
@@ -44,6 +47,8 @@ typedef struct car {
 	double h; //unused
 	double x;
 	double y;
+	double futur_x; // Coordinate if nothing change in FUTUR_TIME second
+	double futur_y; // Coordinate if nothing change in FUTUR_TIME second
 	double a; // orientation of the car in the picture
 	double ts; // turning speed in degrees/second
 	double accel; // in map_unit / second

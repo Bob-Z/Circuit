@@ -28,7 +28,6 @@ item_t * item_list = NULL;
 double angle_sign = 0.0;
 int accel = 0;
 int decel = 0;
-Uint32 old_time = 0;
 map_t * map;
 car_t * car;
 
@@ -37,27 +36,43 @@ car_t * car;
 
 static void calculate_new_pos(item_t * item, car_t * car)
 {
-	car->x += cos(car->a / 180.0 * M_PI) * car->speed;
-	car->y += sin(car->a / 180.0 * M_PI) * car->speed;
-printf("car->x = %f\n",car->x);
-printf("car->y = %f\n",car->y);
+	Uint32 time;
+	double t;
+	static Uint32 old_time = 0;
+
+	time = SDL_GetTicks();
+	t = (double)(time-old_time) / 1000.0;
+	car->a += t * car->ts * angle_sign;
+	if(accel) {
+		car->speed += t * car->accel ;
+		if(car->speed > car->max_speed) {
+			car->speed = car->max_speed;
+		}
+	}
+	if(decel) {
+		car->speed -= t * car->accel ;
+		if(car->speed < -car->max_speed) {
+			car->speed = -car->max_speed;
+		}
+	}
+
 printf("speed = %f\n",car->speed);
-printf("angle = %f\n",car->a);
-printf("cos(car->a) = %f\n",cos(car->a / 180.0 * M_PI));
-printf("sin(car->a) = %f\n",sin(car->a / 180.0 * M_PI));
+
+	car->x += cos(car->a / 180.0 * M_PI) * car->speed * t;
+	car->y += sin(car->a / 180.0 * M_PI) * car->speed * t;
+
+	car->futur_x += cos(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+	car->futur_y += sin(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+
+	old_time = time;
 
 	item_set_pos(item,UNIT_TO_PIX(car->x),UNIT_TO_PIX(car->y));
-
 	item_set_angle(item,car->a);
-
-	sdl_force_virtual_x(UNIT_TO_PIX(car->x));
-	sdl_force_virtual_y(UNIT_TO_PIX(car->y));
 }
+
 static void screen_display(sdl_context_t * ctx)
 {
         SDL_Event event;
-	Uint32 time;
-	double angle;
 
         while( 1 ) {
 
@@ -71,23 +86,10 @@ static void screen_display(sdl_context_t * ctx)
                         sdl_keyboard_manager(&event);
                 }
 
-		time = SDL_GetTicks();
-		car[0].a += (double)(time-old_time) * car[0].ts / 1000.0 * angle_sign;
-		if(accel) {
-			car[0].speed += (double)(time-old_time) * car[0].accel / 1000.0;
-			if(car[0].speed > car[0].max_speed) {
-				car[0].speed = car[0].max_speed;
-			}
-		}
-		if(decel) {
-			car[0].speed -= (double)(time-old_time) * car[0].accel / 1000.0;
-			if(car[0].speed < -car[0].max_speed) {
-				car[0].speed = -car[0].max_speed;
-			}
-		}
-		old_time = time;
-
 		calculate_new_pos(item_list->next,&car[0]);
+
+		sdl_force_virtual_x(UNIT_TO_PIX(car[0].x));
+		sdl_force_virtual_y(UNIT_TO_PIX(car[0].y));
 
                 SDL_RenderClear(ctx->render);
 
