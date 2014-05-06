@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include "sdl.h"
 #include "log.h"
+#include "data.h"
 
 const char optstring[] = "?i:u:p:l:";
 const struct option longopts[] = {
@@ -79,7 +80,6 @@ int main (int argc, char **argv)
 	char * user = NULL;
 	char * pass = NULL;
 	char * log = NULL;
-	char tmp[1024];
 
 	while((opt_ret = getopt_long(argc, argv, optstring, longopts, NULL))!=-1) {
 		switch(opt_ret) {
@@ -112,16 +112,13 @@ int main (int argc, char **argv)
 	// Load graphics
 	item_t * item = NULL;
 	anim_t * anim[NUM_ANIM];
+	map_t * map;
+	car_t * car;
 
-	config_path = getenv("HOME");
-	strcat(config_path,"/.config/circuit/");
-
-	strcpy(tmp,config_path);
-	strcat(tmp,"hungaroring_circuit02.jpg");
-	anim[0] = anim_load(context.render,tmp);
-	strcpy(tmp,config_path);
-	strcat(tmp,"3541.gif");
-	anim[1] = anim_load(context.render,tmp);
+	map = data_load_map(context.render,NULL);
+	anim[0] = map->picture;
+	car = data_load_car(context.render,NULL);
+	anim[1] = car->picture;
 
 	item_list = item_list_add(NULL);
 	item_set_anim(item_list,0,0,anim[0]);
