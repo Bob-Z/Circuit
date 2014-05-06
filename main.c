@@ -129,6 +129,7 @@ int main (int argc, char **argv)
 
 	sdl_set_virtual_x(item->rect.x);
 	sdl_set_virtual_y(item->rect.y);
+	sdl_set_virtual_z(6.0);
 	//Run the main loop
 	screen_display(&context);
 

@@ -33,8 +33,8 @@ map_t * data_load_map(SDL_Renderer * render,char * map_name)
 
 //	map->w = 4000.0;
 //	map->h = 3947.0;
-	map->w = 200.0;
-	map->h = 200.0;
+	map->w = 300.0;
+	map->h = 300.0;
 
 #define NUM_START 1
 	map->num_start = NUM_START;
