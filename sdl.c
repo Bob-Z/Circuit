@@ -425,12 +425,27 @@ void sdl_keyboard_manager(SDL_Event * event)
 	keycb_t * key;
 
 	switch (event->type) {
+	case SDL_KEYUP:
+		key = key_callback;
+		if(key) {
+			do {
+				if( event->key.keysym.scancode == key->code) {
+					if(key->cb_up) {
+						key->cb_up(NULL);
+					}
+				}
+				key=key->next;
+			} while(key);
+		}
+		break;
 	case SDL_KEYDOWN:
 		key = key_callback;
 		if(key) {
 			do {
 				if( event->key.keysym.scancode == key->code) {
-					key->cb(NULL);
+					if(key->cb) {
+						key->cb(NULL);
+					}
 				}
 				key=key->next;
 			} while(key);
@@ -524,7 +539,7 @@ void sdl_force_virtual_z(double z)
 	old_vz =z;
 }
 
-keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*))
+keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*),void (*cb_up)(void*))
 {
 	keycb_t * key;
 
@@ -533,6 +548,7 @@ keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*))
 		key_callback = key;
 		key->code = code;
 		key->cb = cb;
+		key->cb_up = cb_up;
 		key->next = NULL;
 		return key;
 	}
@@ -545,6 +561,7 @@ keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*))
 		key = key->next;
 		key->code = code;
 		key->cb = cb;
+		key->cb_up = cb_up;
 		key->next = NULL;
 		return key;
 	}

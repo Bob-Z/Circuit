@@ -40,6 +40,8 @@ context_t context;
 
 char * config_path = NULL;
 
+double move_angle = 0.0;
+
 static void screen_display(context_t * ctx)
 {
         SDL_Event event;
@@ -56,7 +58,7 @@ static void screen_display(context_t * ctx)
                         sdl_keyboard_manager(&event);
                 }
 
-//		item_set_angle(item_list->next,item_list->next->angle+=0.1);
+		item_set_angle(item_list->next,item_list->next->angle+=move_angle);
                 SDL_RenderClear(ctx->render);
 
                 sdl_blit_item_list(ctx,item_list);
@@ -67,6 +69,23 @@ static void screen_display(context_t * ctx)
         }
 
         return;
+}
+
+static void cb_key_left_down(void * arg)
+{
+	move_angle = -0.5;
+}
+static void cb_key_left_up(void * arg)
+{
+	move_angle = 0;
+}
+static void cb_key_right_down(void * arg)
+{
+	move_angle = +0.5;
+}
+static void cb_key_right_up(void * arg)
+{
+	move_angle = 0;
 }
 
 /**************************
@@ -135,6 +154,10 @@ int main (int argc, char **argv)
 	sdl_set_virtual_x(item->rect.x);
 	sdl_set_virtual_y(item->rect.y);
 	sdl_set_virtual_z(6.0);
+
+	sdl_free_keycb(NULL);
+	sdl_add_keycb(SDL_SCANCODE_LEFT,cb_key_left_down,cb_key_left_up);
+	sdl_add_keycb(SDL_SCANCODE_RIGHT,cb_key_right_down,cb_key_right_up);
 	//Run the main loop
 	screen_display(&context);
 

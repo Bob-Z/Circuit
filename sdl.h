@@ -42,6 +42,7 @@
 typedef struct keycb {
         SDL_Scancode code;
         void (*cb)(void*);
+        void (*cb_up)(void*);
         struct keycb * next;
 } keycb_t;
 
@@ -66,5 +67,5 @@ void sdl_set_virtual_z(double z);
 void sdl_force_virtual_x(int x);
 void sdl_force_virtual_y(int y);
 void sdl_force_virtual_z(double z);
-keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*));
+keycb_t * sdl_add_keycb(SDL_Scancode code,void (*cb)(void*),void (*cb_up)(void*));
 void sdl_free_keycb(keycb_t ** key);
