@@ -12,3 +12,9 @@ Makefile.in
 /install-sh
 /missing
 /stamp-h1
+
+*.o
+Makefile
+circuit
+.deps
+config.*
