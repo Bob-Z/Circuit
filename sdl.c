@@ -52,7 +52,7 @@ void sdl_cleanup()
 	SDL_Quit();
 }
 
-void sdl_init(context_t * context)
+void sdl_init(sdl_context_t * context)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		werr(LOGUSER,"SDL init failed: %s.\n",SDL_GetError());
@@ -86,7 +86,7 @@ void sdl_init(context_t * context)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 }
 
-static void get_virtual(context_t * ctx,int * vx, int * vy)
+static void get_virtual(sdl_context_t * ctx,int * vx, int * vy)
 {
 	int sx;
 	int sy;
@@ -100,7 +100,7 @@ static void get_virtual(context_t * ctx,int * vx, int * vy)
 	*vy = current_vy - (sy/2);
 }
 
-void sdl_mouse_manager(context_t * ctx, SDL_Event * event, item_t * item_list)
+void sdl_mouse_manager(sdl_context_t * ctx, SDL_Event * event, item_t * item_list)
 {
 	SDL_Rect rect;
 	int vx;
@@ -192,7 +192,7 @@ void sdl_mouse_manager(context_t * ctx, SDL_Event * event, item_t * item_list)
 }
 
 /* Take care of system's windowing event */
-void sdl_screen_manager(context_t * ctx,SDL_Event * event)
+void sdl_screen_manager(sdl_context_t * ctx,SDL_Event * event)
 {
 	const Uint8 *keystate;
 
@@ -264,7 +264,7 @@ void sdl_loop_manager()
 	}
 }
 
-void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angle, double zoom_x, double zoom_y, int overlay)
+void sdl_blit_tex(sdl_context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angle, double zoom_x, double zoom_y, int overlay)
 {
 	SDL_Rect r;
         int vx;
@@ -304,7 +304,7 @@ void sdl_blit_tex(context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double angl
 	}
 }
 
-int sdl_blit_anim(context_t * ctx,anim_t * anim, SDL_Rect * rect, double angle, double zoom_x, double zoom_y, int start, int end,int overlay)
+int sdl_blit_anim(sdl_context_t * ctx,anim_t * anim, SDL_Rect * rect, double angle, double zoom_x, double zoom_y, int start, int end,int overlay)
 {
 	Uint32 time = SDL_GetTicks();
 
@@ -332,7 +332,7 @@ int sdl_blit_anim(context_t * ctx,anim_t * anim, SDL_Rect * rect, double angle, 
 	return 0;
 }
 
-void sdl_print_item(context_t * ctx,item_t * item)
+void sdl_print_item(sdl_context_t * ctx,item_t * item)
 {
 	SDL_Surface * surf;
 //	SDL_Color bg={0,0,0};
@@ -357,7 +357,7 @@ void sdl_print_item(context_t * ctx,item_t * item)
 	sdl_blit_tex(ctx,item->str_tex,&r,item->angle,item->zoom_x,item->zoom_y,item->overlay);
 }
 
-int sdl_blit_item(context_t * ctx,item_t * item)
+int sdl_blit_item(sdl_context_t * ctx,item_t * item)
 {
 	Uint32 timer = SDL_GetTicks();
 
@@ -388,7 +388,7 @@ int sdl_blit_item(context_t * ctx,item_t * item)
 	return 0;
 }
 
-void sdl_blit_item_list(context_t * ctx,item_t * list)
+void sdl_blit_item_list(sdl_context_t * ctx,item_t * list)
 {
 	item_t * item;
 
@@ -488,7 +488,7 @@ void sdl_keyboard_manager(SDL_Event * event)
 	}
 }
 
-void sdl_blit_to_screen(context_t * ctx)
+void sdl_blit_to_screen(sdl_context_t * ctx)
 {
 	SDL_RenderPresent(ctx->render);
 }

@@ -17,9 +17,10 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#include <SDL2/SDL.h>
+#ifndef PLAY_H
+#define PLAY_H
 
-typedef struct context {
-	SDL_Renderer * render;
-	SDL_Window * window;
-} context_t;
+#include "sdl.h"
+
+void play(sdl_context_t * context);
+#endif
