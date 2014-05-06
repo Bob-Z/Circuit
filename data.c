@@ -42,8 +42,8 @@ map_t * data_load_map(SDL_Renderer * render,char * map_name)
 	map->start_y = malloc(sizeof(int) * NUM_START);
 	map->start_a = malloc(sizeof(double) * NUM_START);
 
-	map->start_x[0] = 1613;
-	map->start_y[0] = 3348;
+	map->start_x[0] = 1616;
+	map->start_y[0] = 3350;
 	map->start_a[0] = 218.0;
 
 	return map;

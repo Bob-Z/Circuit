@@ -123,7 +123,11 @@ int main (int argc, char **argv)
 	item_list = item_list_add(NULL);
 	item_set_anim(item_list,0,0,anim[0]);
 	item = item_list_add(item_list);
-	item_set_anim(item,map->start_x[0],map->start_y[0],anim[1]);
+	/* Starting line-up coord refer to the center of the vehicle, item coord refer to top/left picture */
+	item_set_anim(item,
+		map->start_x[0]-(anim[1]->w/2*car->w / map->w),
+		map->start_y[0]-(anim[1]->h/2*car->w / map->w),
+		anim[1]);
 	item_set_zoom_x(item,car->w / map->w);
 	item_set_zoom_y(item,car->w / map->w);
 	item_set_angle(item, map->start_a[0] - car->a);
