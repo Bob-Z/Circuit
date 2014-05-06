@@ -63,7 +63,7 @@ void sdl_init(context_t * context)
 
 	atexit(sdl_cleanup);
 
-	context->window = SDL_CreateWindow("World of Gnome",
+	context->window = SDL_CreateWindow("Circuit",
 								 SDL_WINDOWPOS_UNDEFINED,
 								 SDL_WINDOWPOS_UNDEFINED,
 								 DEFAULT_SCREEN_W, DEFAULT_SCREEN_H,

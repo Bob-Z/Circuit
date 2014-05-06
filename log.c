@@ -1,6 +1,6 @@
 /*
-   World of Gnome is a 2D multiplayer role playing game.
-   Copyright (C) 2013 carabobz@gmail.com
+   Circuit is a racing game
+   Copyright (C) 2014 carabobz@gmail.com
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
