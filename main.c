@@ -24,11 +24,14 @@
 #include "play.h"
 #include "log.h"
 
-const char optstring[] = "?i:u:p:l:";
+//const char optstring[] = "?i:u:p:l:";
+const char optstring[] = "l:";
 const struct option longopts[] = {
+#if 0
 	{ "ip",required_argument,NULL,'i' },
 	{ "user",required_argument,NULL,'u' },
 	{ "pass",required_argument,NULL,'p' },
+#endif
 	{ "log",required_argument,NULL,'l' },
 	{NULL,0,NULL,0}
 };
@@ -39,15 +42,18 @@ const struct option longopts[] = {
 
 int main (int argc, char **argv)
 {
+	sdl_context_t sdl_context;
 	int opt_ret;
+	char * log = NULL;
+#if 0
 	char * ip = NULL;
 	char * user = NULL;
 	char * pass = NULL;
-	char * log = NULL;
-	sdl_context_t sdl_context;
+#endif
 
 	while((opt_ret = getopt_long(argc, argv, optstring, longopts, NULL))!=-1) {
 		switch(opt_ret) {
+#if 0
 		case 'i':
 			ip = strdup(optarg);;
 			break;
@@ -57,14 +63,17 @@ int main (int argc, char **argv)
 		case 'p':
 			pass = strdup(optarg);;
 			break;
+#endif
 		case 'l':
 			log = strdup(optarg);;
 			break;
 		default:
 			printf("HELP:\n\n");
+#if 0
 			printf("-i --ip : Set a server IP\n");
 			printf("-u --user: Set a user name\n");
 			printf("-p --pass: Set a user password\n");
+#endif
 			printf("-l --log: Set log level\n");
 			exit(0);
 		}
