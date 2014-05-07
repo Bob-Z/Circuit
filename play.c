@@ -78,7 +78,6 @@ static void set_display(car_t * car)
 	double max_x;
 	double min_y;
 	double max_y;
-	double zoom;
 
 	min_x = max_x = car->x;
 	min_y = max_y = car->y;

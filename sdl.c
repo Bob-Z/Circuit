@@ -270,8 +270,6 @@ void sdl_blit_tex(sdl_context_t * ctx,SDL_Texture * tex, SDL_Rect * rect,double 
         int vx;
         int vy;
 
-	SDL_Rect DestR;
-
 	if(overlay) {
 		r.x = rect->x;
 		r.y = rect->y;

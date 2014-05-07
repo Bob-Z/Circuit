@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include "sdl.h"
 #include "play.h"
+#include "log.h"
 
 const char optstring[] = "?i:u:p:l:";
 const struct option longopts[] = {
