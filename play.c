@@ -26,8 +26,8 @@
 item_t * item_list = NULL;
 
 double angle_sign = 0.0;
-int accel = 0;
-int decel = 0;
+int forward = 0;
+int backward = 0;
 map_t * map;
 car_t * car;
 
@@ -43,16 +43,30 @@ static void calculate_new_pos(item_t * item, car_t * car)
 	time = SDL_GetTicks();
 	t = (double)(time-old_time) / 1000.0;
 	car->a += t * car->ts * angle_sign;
-	if(accel) {
-		car->speed += t * car->accel ;
-		if(car->speed > car->max_speed) {
-			car->speed = car->max_speed;
+	if(forward) {
+		/* Acceleration forward */
+		if(car->speed > 0.0) {
+			car->speed += t * car->accel ;
+			if(car->speed > car->max_speed) {
+				car->speed = car->max_speed;
+			}
+		}
+		/* Brake when going backward */
+		else {
+			car->speed += t * car->decel ;
 		}
 	}
-	else if(decel) {
-		car->speed -= t * car->decel ;
-		if(car->speed < -car->max_speed) {
-			car->speed = -car->max_speed;
+	else if(backward) {
+		/* Accelaration backward */
+		if(car->speed < 0.0) {
+			car->speed -= t * car->accel ;
+			if(car->speed < -car->max_speed) {
+				car->speed = -car->max_speed;
+			}
+		}
+		/* Brake when going forward */
+		else {
+			car->speed -= t * car->decel ;
 		}
 	}
 	else {
@@ -71,9 +85,9 @@ static void calculate_new_pos(item_t * item, car_t * car)
 	car->x += cos((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 	car->y += sin((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 
-	if( car->speed < car->w * 4.0 ) {
-		car->futur_x = car->x + cos((car->a + car->angle) / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
-		car->futur_y = car->y + sin((car->a + car->angle) / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
+	if( car->speed < car->w * 10.0 ) {
+		car->futur_x = car->x + cos((car->a + car->angle) / 180.0 * M_PI) * car->w * 10.0 * FUTUR_TIME;
+		car->futur_y = car->y + sin((car->a + car->angle) / 180.0 * M_PI) * car->w * 10.0 * FUTUR_TIME;
 	}
 	else {
 		car->futur_x = car->x + cos((car->a + car->angle)  / 180.0 * M_PI) * car->speed * FUTUR_TIME;
@@ -180,19 +194,19 @@ static void cb_key_right_up(void * arg)
 }
 static void cb_key_up_down(void * arg)
 {
-	accel = 1;
+	forward = 1;
 }
 static void cb_key_up_up(void * arg)
 {
-	accel = 0;
+	forward = 0;
 }
 static void cb_key_down_down(void * arg)
 {
-	decel = 1;
+	backward = 1;
 }
 static void cb_key_down_up(void * arg)
 {
-	decel = 0;
+	backward = 0;
 }
 
 void play(sdl_context_t * context, char * map_name, char ** car_name, int car_num)
