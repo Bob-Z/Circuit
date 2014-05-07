@@ -56,7 +56,7 @@ static void calculate_new_pos(item_t * item, car_t * car)
 		}
 	}
 
-printf("speed = %f\n",car->speed);
+	wlog(LOGDEBUG,"speed = %f",car->speed);
 
 	car->x += cos(car->a / 180.0 * M_PI) * car->speed * t;
 	car->y += sin(car->a / 180.0 * M_PI) * car->speed * t;
@@ -70,7 +70,7 @@ printf("speed = %f\n",car->speed);
 	item_set_angle(item,car->a);
 }
 
-static void set_display(car_t * car)
+static void set_display(sdl_context_t * ctx, car_t * car)
 {
 	double dx;
 	double dy;
@@ -78,6 +78,12 @@ static void set_display(car_t * car)
 	double max_x;
 	double min_y;
 	double max_y;
+	double max_z;
+	double zoom;
+	int sx;
+	int sy;
+
+	SDL_GetRendererOutputSize(ctx->render,&sx,&sy);
 
 	min_x = max_x = car->x;
 	min_y = max_y = car->y;
@@ -94,18 +100,18 @@ static void set_display(car_t * car)
 	dx = max_x - min_x;
 	dy = max_y - min_y;
 
-#if 0
 	sdl_force_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
 	sdl_force_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
-#endif
-	sdl_force_virtual_x(UNIT_TO_PIX(car->x));
-	sdl_force_virtual_y(UNIT_TO_PIX(car->y));
 
-	max_x = sqrt(dx * dx + dy * dy);
-	max_x += sqrt( car->w * car->w + car->h * car->h);
+	// Zoom calculation
+	max_z = (double)sx / (double)(UNIT_TO_PIX(dx + car->w));
+	zoom = (double)sy / (double)(UNIT_TO_PIX(dy + car->h));
 
-printf("zoom = %f / %f = %f\n",map->w , max_x, map->w / max_x);
-	sdl_force_virtual_z(map->w / (max_x * 4.0)  );
+	if(max_z < zoom)
+		zoom = max_z;
+
+	wlog(LOGDEBUG,"zoom = %f",zoom);
+	sdl_force_virtual_z(zoom );
 }
 
 static void screen_display(sdl_context_t * ctx)
@@ -126,7 +132,7 @@ static void screen_display(sdl_context_t * ctx)
 
 		calculate_new_pos(item_list->next,&car[0]);
 
-		set_display(&car[0]);
+		set_display(ctx,&car[0]);
 
                 SDL_RenderClear(ctx->render);
 
