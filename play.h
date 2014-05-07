@@ -22,5 +22,5 @@
 
 #include "sdl.h"
 
-void play(sdl_context_t * context,char * map_name);
+void play(sdl_context_t * context,char * map_name,char ** car_name, int car_num);
 #endif

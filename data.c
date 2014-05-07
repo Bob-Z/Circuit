@@ -105,16 +105,87 @@ map_t * data_load_map(SDL_Renderer * render,char * map_name)
 	return map;
 }
 
+car_t * data_parse_car(SDL_Renderer * render,char * car_name)
+{
+	int fd;
+	char * data;
+	int index;
+	car_t * car;
+	ssize_t ret;
+
+	fd = open(car_name,O_RDONLY);
+	if(fd == -1) return NULL;
+
+	car = malloc(sizeof(car_t));
+	car->speed = 0.0;
+
+	index=0;
+	data = malloc(index+1);
+	while( (ret=read(fd,data+index,1)) == 1) {
+		if(*(data+index) == '\n') {
+			*(data+index) = 0;
+			if(strncmp(data,"picture",strlen("picture")) == 0) {
+				car->picture = anim_load(render,data+strlen("picture")+1);
+				if(car->picture == NULL) {
+					ret = -1;
+					break;
+				}
+			}
+			if(strncmp(data,"width",strlen("width")) == 0) {
+				car->w = atof(data+strlen("width")+1);
+			}
+			if(strncmp(data,"height",strlen("height")) == 0) {
+				car->h = atof(data+strlen("height")+1);
+			}
+			if(strncmp(data,"angle",strlen("angle")) == 0) {
+				car->a = atof(data+strlen("angle")+1);
+			}
+			if(strncmp(data,"turn_speed",strlen("turn_speed")) == 0) {
+				car->ts = atof(data+strlen("turn_speed")+1);
+			}
+			if(strncmp(data,"accel",strlen("accel")) == 0) {
+				car->accel = atof(data+strlen("accel")+1);
+			}
+			if(strncmp(data,"decel",strlen("decel")) == 0) {
+				car->decel = atof(data+strlen("decel")+1);
+			}
+			if(strncmp(data,"max_speed",strlen("max_speed")) == 0) {
+				car->max_speed = atof(data+strlen("max_speed")+1);
+			}
+			if(strncmp(data,"engine_brake",strlen("engine_brake")) == 0) {
+				car->engine_brake = atof(data+strlen("engine_brake")+1);
+			}
+			index=-1;
+		}
+		index++;
+		data = realloc(data,index+1);
+	}
+
+	free(data);
+
+	if( ret == -1) {
+		free(car);
+		return NULL;
+	}
+
+	return car;
+}
 car_t * data_load_car(SDL_Renderer * render,char * car_name)
 {
 	char tmp[1024];
 	car_t * car;
 
-	car = malloc(sizeof(car_t));
+	car = data_parse_car(render,car_name);
+
+	if(car) return car;
 
 	strcpy(tmp,getenv("HOME"));
 	strcat(tmp,"/.config/circuit/");
-	strcat(tmp,"3541.gif");
+	strcat(tmp,car_name);
+
+	car = data_parse_car(render,tmp);
+
+	return car;
 	car->picture = anim_load(render,tmp);
 
 	car->w = 4.39;
