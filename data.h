@@ -51,10 +51,11 @@ typedef struct car {
 	double futur_y; // Coordinate if nothing change in FUTUR_TIME second
 	double a; // orientation of the car in the picture
 	double ts; // turning speed in degrees/second
-	double accel; // in map_unit / second
-	double decel; // in map_unit / second
+	double accel; // in map_unit / second^2
+	double decel; // in map_unit / second^2
 	double max_speed; // in map_unit / second
 	double speed;
+	double engine_brake; // in map_unit / second^2
 } car_t;
 
 map_t * data_load_map(SDL_Renderer * render,char * map_name);

@@ -49,10 +49,20 @@ static void calculate_new_pos(item_t * item, car_t * car)
 			car->speed = car->max_speed;
 		}
 	}
-	if(decel) {
+	else if(decel) {
 		car->speed -= t * car->decel ;
 		if(car->speed < -car->max_speed) {
 			car->speed = -car->max_speed;
+		}
+	}
+	else {
+		if(car->speed > 0) {
+			car->speed -= t * car->engine_brake;
+			if(car->speed < 0) car->speed=0;
+		}
+		else {
+			car->speed += t * car->engine_brake;
+			if(car->speed > 0) car->speed=0;
 		}
 	}
 

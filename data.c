@@ -69,6 +69,7 @@ car_t * data_load_car(SDL_Renderer * render,char * car_name)
 	car->decel = 30.0;
 	car->max_speed = 84.7; //~305 km/h
 	car->speed = 0.0;
+	car->engine_brake = 5.0;
 
 	return car;
 }
