@@ -71,8 +71,14 @@ static void calculate_new_pos(item_t * item, car_t * car)
 	car->x += cos(car->a / 180.0 * M_PI) * car->speed * t;
 	car->y += sin(car->a / 180.0 * M_PI) * car->speed * t;
 
-	car->futur_x = car->x + cos(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
-	car->futur_y = car->y + sin(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+	if( car->speed < car->w * 4.0 ) {
+		car->futur_x = car->x + cos(car->a / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
+		car->futur_y = car->y + sin(car->a / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
+	}
+	else {
+		car->futur_x = car->x + cos(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+		car->futur_y = car->y + sin(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+	}
 
 	old_time = time;
 
