@@ -17,34 +17,90 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "data.h"
 
+map_t * data_parse_map(SDL_Renderer * render,char * map_name)
+{
+	int fd;
+	char * data;
+	int index;
+	map_t * map;
+	ssize_t ret;
+
+	fd = open(map_name,O_RDONLY);
+	if(fd == -1) return NULL;
+
+	map = malloc(sizeof(map_t));
+	map->num_start = 0;
+	map->start_x = NULL;
+	map->start_y = NULL;
+	map->start_a = NULL;
+
+	index=0;
+	data = malloc(index+1);
+	while( (ret=read(fd,data+index,1)) == 1) {
+		if(*(data+index) == '\n') {
+			*(data+index) = 0;
+			if(strncmp(data,"picture",strlen("picture")) == 0) {
+				map->picture = anim_load(render,data+strlen("picture")+1);
+				if(map->picture == NULL) {
+					ret = -1;
+					break;
+				}
+			}
+			if(strncmp(data,"width",strlen("width")) == 0) {
+				map->w = atof(data+strlen("width")+1);
+			}
+			if(strncmp(data,"height",strlen("height")) == 0) {
+				map->h = atof(data+strlen("height")+1);
+			}
+			if(strncmp(data,"start_x",strlen("start_x")) == 0) {
+				map->num_start ++;
+				map->start_x = realloc(map->start_x, sizeof(int) * map->num_start);
+				map->start_y = realloc(map->start_y, sizeof(int) * map->num_start);
+				map->start_a = realloc(map->start_a, sizeof(double) * map->num_start);
+
+				map->start_x[map->num_start-1] = atoi(data+strlen("start_x")+1);
+			}
+			if(strncmp(data,"start_y",strlen("start_y")) == 0) {
+				map->start_y[map->num_start-1] = atoi(data+strlen("start_y")+1);
+			}
+			if(strncmp(data,"start_a",strlen("start_a")) == 0) {
+				map->start_a[map->num_start-1] = atoi(data+strlen("start_a")+1);
+			}
+			index=-1;
+		}
+		index++;
+		data = realloc(data,index+1);
+	}
+
+	free(data);
+
+	if( ret == -1) {
+		free(map);
+		return NULL;
+	}
+
+	return map;
+}
 map_t * data_load_map(SDL_Renderer * render,char * map_name)
 {
 	char tmp[1024];
 	map_t * map;
 
-	map = malloc(sizeof(map_t));
+	map = data_parse_map(render,map_name);
+
+	if(map) return map;
 
 	strcpy(tmp,getenv("HOME"));
 	strcat(tmp,"/.config/circuit/");
-	strcat(tmp,"hungaroring_circuit02.jpg");
-	map->picture = anim_load(render,tmp);
+	strcat(tmp,map_name);
 
-//	map->w = 4000.0;
-//	map->h = 3947.0;
-	map->w = 300.0;
-	map->h = 300.0;
-
-#define NUM_START 1
-	map->num_start = NUM_START;
-	map->start_x = malloc(sizeof(int) * NUM_START);
-	map->start_y = malloc(sizeof(int) * NUM_START);
-	map->start_a = malloc(sizeof(double) * NUM_START);
-
-	map->start_x[0] = 1616;
-	map->start_y[0] = 3350;
-	map->start_a[0] = 218.0;
+	map = data_parse_map(render,tmp);
 
 	return map;
 }

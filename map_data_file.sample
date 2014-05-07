@@ -1,0 +1,18 @@
+#complete path the the circuit map picture
+picture /home/foo/pic.jpg
+#floating point value representing physical (i.e. not pixel) size of the circuit's width
+width 300.0
+#floating point value representing physical (i.e. not pixel) size of the circuit's height
+height 300.0
+
+#integral value giving the coordinate in pixel in the map where the first car start
+start_x 1616
+start_y 3350
+#floating point value giving the starting angle of the first car
+start_a 218.0
+
+#same thing for second, third... cars
+start_x 1626
+start_y 3360
+start_a 218.0
+

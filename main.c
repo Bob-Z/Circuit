@@ -25,13 +25,14 @@
 #include "log.h"
 
 //const char optstring[] = "?i:u:p:l:";
-const char optstring[] = "l:";
+const char optstring[] = "m:l:";
 const struct option longopts[] = {
 #if 0
 	{ "ip",required_argument,NULL,'i' },
 	{ "user",required_argument,NULL,'u' },
 	{ "pass",required_argument,NULL,'p' },
 #endif
+	{ "map",required_argument,NULL,'m' },
 	{ "log",required_argument,NULL,'l' },
 	{NULL,0,NULL,0}
 };
@@ -44,6 +45,7 @@ int main (int argc, char **argv)
 {
 	sdl_context_t sdl_context;
 	int opt_ret;
+	char * map = NULL;
 	char * log = NULL;
 #if 0
 	char * ip = NULL;
@@ -64,6 +66,9 @@ int main (int argc, char **argv)
 			pass = strdup(optarg);;
 			break;
 #endif
+		case 'm':
+			map = strdup(optarg);;
+			break;
 		case 'l':
 			log = strdup(optarg);;
 			break;
@@ -74,16 +79,22 @@ int main (int argc, char **argv)
 			printf("-u --user: Set a user name\n");
 			printf("-p --pass: Set a user password\n");
 #endif
+			printf("-m --map: map data file (local or in $HOME/.config/circuit/)\n");
 			printf("-l --log: Set log level\n");
 			exit(0);
 		}
+	}
+
+	if( map == NULL) {
+		werr(LOGUSER,"You must provide a map data file name and at least a car data file name");
+		return -1;
 	}
 
 	sdl_init(&sdl_context);
 
 	init_log(log);
 
-	play(&sdl_context);
+	play(&sdl_context,map);
 
 	return 0;
 }
