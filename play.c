@@ -216,8 +216,16 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int car_nu
 	anim_t * anim[NUM_ANIM];
 
 	map = data_load_map(context->render,map_name);
+	if(map == NULL) {
+		werr(LOGUSER,"Cannot read map %s",map_name);
+		return;
+	}
 	anim[0] = map->picture;
 	car = data_load_car(context->render,car_name[0]);
+	if(car == NULL) {
+		werr(LOGUSER,"Cannot read car %s",car_name[0]);
+		return;
+	}
 	anim[1] = car->picture;
 
 	item_list = item_list_add(NULL);
