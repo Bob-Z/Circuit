@@ -66,7 +66,7 @@ car_t * data_load_car(SDL_Renderer * render,char * car_name)
 	car->a = 0.0; // Head to the right
 	car->ts= 90.0;
 	car->accel = 10.0;
-	car->decel = 25.0;
+	car->decel = 30.0;
 	car->max_speed = 84.7; //~305 km/h
 	car->speed = 0.0;
 
