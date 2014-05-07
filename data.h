@@ -23,7 +23,7 @@
 #include "anim.h"
 
 // Number of seconds to forsee the position
-#define FUTUR_TIME (1.0)
+#define FUTUR_TIME (1.5)
 
 typedef struct map {
 	anim_t * picture;

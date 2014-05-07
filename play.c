@@ -80,7 +80,7 @@ static void calculate_new_pos(item_t * item, car_t * car)
 		}
 	}
 
-	wlog(LOGDEBUG,"speed = %f",car->speed);
+	//wlog(LOGDEBUG,"speed = %f",car->speed);
 
 	car->x += cos((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 	car->y += sin((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
@@ -136,8 +136,8 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 	dx = max_x - min_x;
 	dy = max_y - min_y;
 
-	sdl_force_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
-	sdl_force_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
+	sdl_set_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
+	sdl_set_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
 
 	// Zoom calculation
 	max_z = (double)sx / (double)(UNIT_TO_PIX(dx + car->w));
@@ -146,8 +146,8 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 	if(max_z < zoom)
 		zoom = max_z;
 
-	wlog(LOGDEBUG,"zoom = %f",zoom);
-	sdl_force_virtual_z(zoom );
+	//wlog(LOGDEBUG,"zoom = %f",zoom);
+	sdl_set_virtual_z(zoom );
 }
 
 static void screen_display(sdl_context_t * ctx)

@@ -250,7 +250,7 @@ void sdl_loop_manager()
 	if( virtual_tick + VIRTUAL_ANIM_DURATION > timer ) {
 		current_vx = (int)((double)old_vx + (double)( virtual_x - old_vx ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION);
 		current_vy = (int)((double)old_vy + (double)( virtual_y - old_vy ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION);
-		current_vz = (int)((double)old_vz + (double)( virtual_z - old_vz ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION);
+		current_vz = (double)old_vz + (double)( virtual_z - old_vz ) * (double)(timer - virtual_tick) / (double)VIRTUAL_ANIM_DURATION;
 	}
 	else {
 		old_vx = virtual_x;
