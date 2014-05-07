@@ -49,12 +49,13 @@ typedef struct car {
 	double y;
 	double futur_x; // Coordinate if nothing change in FUTUR_TIME second
 	double futur_y; // Coordinate if nothing change in FUTUR_TIME second
-	double a; // orientation of the car in the picture
+	double angle; // orientation of the car in the picture
 	double ts; // turning speed in degrees/second
 	double accel; // in map_unit / second^2
 	double decel; // in map_unit / second^2
 	double max_speed; // in map_unit / second
 	double speed;
+	double a; // orientation of the car during the game
 	double engine_brake; // in map_unit / second^2
 } car_t;
 

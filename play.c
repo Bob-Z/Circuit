@@ -68,16 +68,16 @@ static void calculate_new_pos(item_t * item, car_t * car)
 
 	wlog(LOGDEBUG,"speed = %f",car->speed);
 
-	car->x += cos(car->a / 180.0 * M_PI) * car->speed * t;
-	car->y += sin(car->a / 180.0 * M_PI) * car->speed * t;
+	car->x += cos((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
+	car->y += sin((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 
 	if( car->speed < car->w * 4.0 ) {
-		car->futur_x = car->x + cos(car->a / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
-		car->futur_y = car->y + sin(car->a / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
+		car->futur_x = car->x + cos((car->a + car->angle) / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
+		car->futur_y = car->y + sin((car->a + car->angle) / 180.0 * M_PI) * car->w * 4.0 * FUTUR_TIME;
 	}
 	else {
-		car->futur_x = car->x + cos(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
-		car->futur_y = car->y + sin(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+		car->futur_x = car->x + cos((car->a + car->angle)  / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+		car->futur_y = car->y + sin((car->a  + car->angle) / 180.0 * M_PI) * car->speed * FUTUR_TIME;
 	}
 
 	old_time = time;
@@ -218,7 +218,7 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int car_nu
 	item_set_zoom_y(item,car->w / map->w);
 	car->x = PIX_TO_UNIT(map->start_x[0]);
 	car->y = PIX_TO_UNIT(map->start_y[0]);
-	car->a = map->start_a[0] - car->a;
+	car->a = map->start_a[0] - car->angle;
 	item_set_angle(item, car->a);
 
 	sdl_set_virtual_x(item->rect.x);

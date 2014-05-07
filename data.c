@@ -118,6 +118,7 @@ car_t * data_parse_car(SDL_Renderer * render,char * car_name)
 
 	car = malloc(sizeof(car_t));
 	car->speed = 0.0;
+	car->a = 0.0;
 
 	index=0;
 	data = malloc(index+1);
@@ -138,7 +139,7 @@ car_t * data_parse_car(SDL_Renderer * render,char * car_name)
 				car->h = atof(data+strlen("height")+1);
 			}
 			if(strncmp(data,"angle",strlen("angle")) == 0) {
-				car->a = atof(data+strlen("angle")+1);
+				car->angle = atof(data+strlen("angle")+1);
 			}
 			if(strncmp(data,"turn_speed",strlen("turn_speed")) == 0) {
 				car->ts = atof(data+strlen("turn_speed")+1);
