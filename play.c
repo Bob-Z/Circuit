@@ -214,8 +214,8 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int car_nu
 		map->start_x[0]-(anim[1]->w/2*car->w / map->w),
 		map->start_y[0]-(anim[1]->h/2*car->w / map->w),
 		anim[1]);
-	item_set_zoom_x(item,car->w / map->w);
-	item_set_zoom_y(item,car->w / map->w);
+	item_set_zoom_x(item,car->w / map->w * (double)map->picture->w / (double)car->picture->w);
+	item_set_zoom_y(item,car->w / map->w * (double)map->picture->w / (double)car->picture->w);
 	car->x = PIX_TO_UNIT(map->start_x[0]);
 	car->y = PIX_TO_UNIT(map->start_y[0]);
 	car->a = map->start_a[0] - car->angle;
