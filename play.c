@@ -31,8 +31,8 @@ int decel = 0;
 map_t * map;
 car_t * car;
 
-#define UNIT_TO_PIX(a) (a  / map->w *(double) map->picture->w )
-#define PIX_TO_UNIT(a) (a  * map->w /(double) map->picture->w )
+#define UNIT_TO_PIX(a) ((a)  / map->w *(double) map->picture->w )
+#define PIX_TO_UNIT(a) ((a)  * map->w /(double) map->picture->w )
 
 static void calculate_new_pos(item_t * item, car_t * car)
 {
@@ -50,7 +50,7 @@ static void calculate_new_pos(item_t * item, car_t * car)
 		}
 	}
 	if(decel) {
-		car->speed -= t * car->accel ;
+		car->speed -= t * car->decel ;
 		if(car->speed < -car->max_speed) {
 			car->speed = -car->max_speed;
 		}
@@ -61,13 +61,52 @@ printf("speed = %f\n",car->speed);
 	car->x += cos(car->a / 180.0 * M_PI) * car->speed * t;
 	car->y += sin(car->a / 180.0 * M_PI) * car->speed * t;
 
-	car->futur_x += cos(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
-	car->futur_y += sin(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+	car->futur_x = car->x + cos(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+	car->futur_y = car->y + sin(car->a / 180.0 * M_PI) * car->speed * FUTUR_TIME;
 
 	old_time = time;
 
 	item_set_pos(item,UNIT_TO_PIX(car->x),UNIT_TO_PIX(car->y));
 	item_set_angle(item,car->a);
+}
+
+static void set_display(car_t * car)
+{
+	double dx;
+	double dy;
+	double min_x;
+	double max_x;
+	double min_y;
+	double max_y;
+	double zoom;
+
+	min_x = max_x = car->x;
+	min_y = max_y = car->y;
+
+	if( car->futur_x < min_x )
+		min_x = car->futur_x;
+	if( car->futur_x > max_x )
+		max_x = car->futur_x;
+	if( car->futur_y < min_y )
+		min_y = car->futur_y;
+	if( car->futur_y > max_y )
+		max_y = car->futur_y;
+
+	dx = max_x - min_x;
+	dy = max_y - min_y;
+
+#if 0
+	sdl_force_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
+	sdl_force_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
+#endif
+	sdl_force_virtual_x(UNIT_TO_PIX(car->x));
+	sdl_force_virtual_y(UNIT_TO_PIX(car->y));
+
+	max_x = sqrt(dx * dx + dy * dy);
+	max_x += sqrt( car->w * car->w + car->h * car->h);
+
+printf("zoom = %f / %f = %f\n",map->w , max_x, map->w / max_x);
+	sdl_force_virtual_z(map->w / (max_x * 4.0)  );
 }
 
 static void screen_display(sdl_context_t * ctx)
@@ -88,8 +127,7 @@ static void screen_display(sdl_context_t * ctx)
 
 		calculate_new_pos(item_list->next,&car[0]);
 
-		sdl_force_virtual_x(UNIT_TO_PIX(car[0].x));
-		sdl_force_virtual_y(UNIT_TO_PIX(car[0].y));
+		set_display(&car[0]);
 
                 SDL_RenderClear(ctx->render);
 
