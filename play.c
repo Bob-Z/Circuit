@@ -34,7 +34,7 @@ car_t * car;
 #define UNIT_TO_PIX(a) ((a)  / map->w *(double) map->picture->w )
 #define PIX_TO_UNIT(a) ((a)  * map->w /(double) map->picture->w )
 
-static void calculate_new_pos(item_t * item, car_t * car)
+static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 {
 	Uint32 time;
 	double t;
@@ -84,6 +84,11 @@ static void calculate_new_pos(item_t * item, car_t * car)
 
 	car->x += cos((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 	car->y += sin((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
+
+	if(car->x < 0.0) car->x = 0.0;
+	if(car->y < 0.0) car->y = 0.0;
+	if(car->x > map->w ) car->x = map->w;
+	if(car->y > map->h) car->y = map->h;
 
 	if( abs(car->speed) < car->w * 10.0 ) {
 		if(car->speed >= 0.0 ) {
@@ -166,7 +171,7 @@ static void screen_display(sdl_context_t * ctx)
                         sdl_keyboard_manager(&event);
                 }
 
-		calculate_new_pos(item_list->next,&car[0]);
+		calculate_new_pos(item_list->next,&car[0],map);
 
 		set_display(ctx,&car[0]);
 
