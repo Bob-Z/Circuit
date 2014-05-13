@@ -54,10 +54,12 @@ map_t * data_parse_map(SDL_Renderer * render,char * map_name)
 			}
 			if(strncmp(data,"width",strlen("width")) == 0) {
 				map->w = atof(data+strlen("width")+1);
+				map->h = (int) ((double)map->picture->h / (double)map->picture->w * map->w);
 			}
 			if(strncmp(data,"height",strlen("height")) == 0) {
 				map->h = atof(data+strlen("height")+1);
 			}
+
 			if(strncmp(data,"start_x",strlen("start_x")) == 0) {
 				map->num_start ++;
 				map->start_x = realloc(map->start_x, sizeof(int) * map->num_start);
