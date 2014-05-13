@@ -22,6 +22,9 @@
 
 #include "anim.h"
 
+#define UNIT_TO_PIX(a) ((a)  / map->w *(double) map->picture->w )
+#define PIX_TO_UNIT(a) ((a)  * map->w /(double) map->picture->w )
+
 // Number of seconds to forsee the position
 #define FUTUR_TIME (1.5)
 

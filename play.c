@@ -31,9 +31,6 @@ int backward = 0;
 map_t * map;
 car_t * car;
 
-#define UNIT_TO_PIX(a) ((a)  / map->w *(double) map->picture->w )
-#define PIX_TO_UNIT(a) ((a)  * map->w /(double) map->picture->w )
-
 static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 {
 	Uint32 time;
