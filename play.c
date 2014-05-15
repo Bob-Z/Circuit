@@ -92,7 +92,7 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 
 	old_time = time;
 
-	item_set_pos(item,UNIT_TO_PIX(car->x),UNIT_TO_PIX(car->y));
+	item_set_pos(item,UNIT_TO_PIX(car->x - car->w/2.0),UNIT_TO_PIX(car->y - car->h/2.0));
 	item_set_angle(item,car->a);
 }
 
