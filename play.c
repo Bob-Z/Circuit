@@ -87,20 +87,8 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 	if(car->x > map->w ) car->x = map->w;
 	if(car->y > map->h) car->y = map->h;
 
-	if( abs(car->speed) < car->w * 10.0 ) {
-		if(car->speed >= 0.0 ) {
-			car->futur_x = car->x + cos((car->a + car->angle) / 180.0 * M_PI) * car->w * 10.0 * FUTUR_TIME;
-			car->futur_y = car->y + sin((car->a + car->angle) / 180.0 * M_PI) * car->w * 10.0 * FUTUR_TIME;
-		}
-		else {
-			car->futur_x = car->x + cos((car->a + car->angle) / 180.0 * M_PI) * -car->w * 10.0 * FUTUR_TIME;
-			car->futur_y = car->y + sin((car->a + car->angle) / 180.0 * M_PI) * -car->w * 10.0 * FUTUR_TIME;
-		}
-	}
-	else {
-		car->futur_x = car->x + cos((car->a + car->angle)  / 180.0 * M_PI) * car->speed * FUTUR_TIME;
-		car->futur_y = car->y + sin((car->a  + car->angle) / 180.0 * M_PI) * car->speed * FUTUR_TIME;
-	}
+	car->futur_x = car->x + cos((car->a + car->angle)  / 180.0 * M_PI) * car->speed * FUTUR_TIME;
+	car->futur_y = car->y + sin((car->a  + car->angle) / 180.0 * M_PI) * car->speed * FUTUR_TIME;
 
 	old_time = time;
 
@@ -116,7 +104,6 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 	double max_x;
 	double min_y;
 	double max_y;
-	double max_z;
 	double zoom;
 	int sx;
 	int sy;
@@ -142,12 +129,13 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 	sdl_set_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
 
 	// Zoom calculation
-	max_z = (double)sx / (double)(UNIT_TO_PIX(dx + car->w));
-	zoom = (double)sy / (double)(UNIT_TO_PIX(dy + car->h));
-
-	if(max_z < zoom)
-		zoom = max_z;
-
+	// sx/2 = Constant size in pixel to display on the screen: the distance on the screen between the car and it's futur postion
+	// have to be constant.
+	double distance = sqrt(dx*dx+dy*dy);
+	if( distance < 2.0 * car->w ) {
+		distance = 2.0 * car->w;
+	}
+	zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(distance)) ;
 	//wlog(LOGDEBUG,"zoom = %f",zoom);
 	sdl_set_virtual_z(zoom );
 }
