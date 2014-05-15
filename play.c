@@ -31,6 +31,15 @@ int backward = 0;
 map_t * map;
 car_t * car;
 
+int key_u = 0;
+int key_d = 0;
+int key_l = 0;
+int key_r = 0;
+static void cb_key_left_down(void * arg);
+static void cb_key_right_down(void * arg);
+static void cb_key_up_down(void * arg);
+static void cb_key_down_down(void * arg);
+
 static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 {
 	Uint32 time;
@@ -175,34 +184,57 @@ static void screen_display(sdl_context_t * ctx)
 static void cb_key_left_down(void * arg)
 {
 	angle_sign = -1.0;
+	key_l = 1;
 }
 static void cb_key_left_up(void * arg)
 {
 	angle_sign = 0.0;
+	key_l = 0;
+	if(key_r) {
+		cb_key_right_down(arg);
+	}
 }
 static void cb_key_right_down(void * arg)
 {
 	angle_sign = 1.0;
+	key_r = 1;
 }
 static void cb_key_right_up(void * arg)
 {
 	angle_sign = 0.0;
+	key_r = 0;
+	if(key_l) {
+		cb_key_left_down(arg);
+	}
 }
 static void cb_key_up_down(void * arg)
 {
 	forward = 1;
+	backward = 0;
+	key_u = 1;
 }
 static void cb_key_up_up(void * arg)
 {
 	forward = 0;
+	key_u = 0;
+	if(key_d) {
+		cb_key_down_down(arg);
+	}
 }
 static void cb_key_down_down(void * arg)
 {
 	backward = 1;
+	forward = 0;
+	key_d = 1;
 }
 static void cb_key_down_up(void * arg)
 {
 	backward = 0;
+	key_d = 0;
+	if(key_u) {
+		cb_key_up_down(arg);
+	}
+
 }
 
 void play(sdl_context_t * context, char * map_name, char ** car_name, int car_num)
