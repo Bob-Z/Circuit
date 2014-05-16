@@ -39,6 +39,7 @@ map_t * data_parse_map(SDL_Renderer * render,char * map_name)
 	map->start_x = NULL;
 	map->start_y = NULL;
 	map->start_a = NULL;
+	map->bounce = 1.0;
 
 	index=0;
 	data = malloc(index+1);
@@ -190,19 +191,6 @@ car_t * data_load_car(SDL_Renderer * render,char * car_name)
 	strcat(tmp,car_name);
 
 	car = data_parse_car(render,tmp);
-
-	return car;
-	car->picture = anim_load(render,tmp);
-
-	car->w = 4.39;
-	car->h = 2.315;
-	car->a = 0.0; // Head to the right
-	car->ts= 90.0;
-	car->accel = 10.0;
-	car->decel = 30.0;
-	car->max_speed = 84.7; //~305 km/h
-	car->speed = 0.0;
-	car->engine_brake = 5.0;
 
 	return car;
 }
