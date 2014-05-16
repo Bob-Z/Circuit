@@ -39,6 +39,7 @@ typedef struct map {
 	int * start_x; // Start coordinate in pixel
 	int * start_y;
 	double * start_a;  // Car angle on start-up line
+	double bounce; //Car speed multiplier in case of collision
 } map_t;
 
 typedef struct car {

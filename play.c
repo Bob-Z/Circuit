@@ -91,10 +91,27 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 	car->x += cos((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 	car->y += sin((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 
-	if(car->x < 0.0) car->x = 0.0;
-	if(car->y < 0.0) car->y = 0.0;
-	if(car->x > map->w ) car->x = map->w;
-	if(car->y > map->h) car->y = map->h;
+	int bounce = 0;
+	if(car->x < 0.0){
+		 car->x = 0.0;
+		bounce = 1;
+	}
+	if(car->y < 0.0) {
+		car->y = 0.0;
+		bounce = 1;
+	}
+	if(car->x > map->w ) {
+		car->x = map->w;
+		bounce = 1;
+	}
+	if(car->y > map->h) {
+		car->y = map->h;
+		bounce = 1;
+	}
+
+	if(bounce) {
+		car->speed *= map->bounce;
+	}
 
 	car->futur_x = car->x + cos((car->a + car->angle)  / 180.0 * M_PI) * car->speed * FUTUR_TIME;
 	car->futur_y = car->y + sin((car->a  + car->angle) / 180.0 * M_PI) * car->speed * FUTUR_TIME;

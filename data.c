@@ -74,6 +74,9 @@ map_t * data_parse_map(SDL_Renderer * render,char * map_name)
 			if(strncmp(data,"start_a",strlen("start_a")) == 0) {
 				map->start_a[map->num_start-1] = atoi(data+strlen("start_a")+1);
 			}
+			if(strncmp(data,"bounce",strlen("bounce")) == 0) {
+				map->bounce = atof(data+strlen("bounce")+1);
+			}
 			index=-1;
 		}
 		index++;
