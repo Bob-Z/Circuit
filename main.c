@@ -35,8 +35,11 @@ const struct option longopts[] = {
 	{ "map",required_argument,NULL,'m' },
 	{ "car",required_argument,NULL,'c' },
 	{ "log",required_argument,NULL,'l' },
+	{ "nozoom",0,NULL,'n' },
 	{NULL,0,NULL,0}
 };
+
+option_t * option;
 
 /**************************
   main
@@ -50,6 +53,8 @@ int main (int argc, char **argv)
 	int num_car = 0;
 	char ** car = NULL;
 	char * log = NULL;
+
+	option = init_option();
 #if 0
 	char * ip = NULL;
 	char * user = NULL;
@@ -80,6 +85,9 @@ int main (int argc, char **argv)
 		case 'l':
 			log = strdup(optarg);;
 			break;
+		case 'n':
+			option->zoom = 0;
+			break;
 		default:
 			printf("HELP:\n\n");
 #if 0
@@ -103,7 +111,7 @@ int main (int argc, char **argv)
 
 	init_log(log);
 
-	play(&sdl_context,map,car,num_car);
+	play(&sdl_context,map,car,num_car,option);
 
 	return 0;
 }

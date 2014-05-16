@@ -21,6 +21,7 @@
 #define PLAY_H
 
 #include "sdl.h"
+#include "data.h"
 
-void play(sdl_context_t * context,char * map_name,char ** car_name, int car_num);
+void play(sdl_context_t * context,char * map_name,char ** car_name, int car_num,option_t * option);
 #endif

@@ -63,6 +63,11 @@ typedef struct car {
 	double engine_brake; // in map_unit / second^2
 } car_t;
 
+typedef struct game_option {
+	int zoom;
+} option_t;
+
+option_t * init_option();
 map_t * data_load_map(SDL_Renderer * render,char * map_name);
 car_t * data_load_car(SDL_Renderer * render,char * car_name);
 

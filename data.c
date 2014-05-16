@@ -23,6 +23,15 @@
 #include <unistd.h>
 #include "data.h"
 
+option_t *  init_option()
+{
+	option_t * o = malloc(sizeof(option_t));
+
+	o->zoom = 1;
+
+	return o;
+}
+
 map_t * data_parse_map(SDL_Renderer * render,char * map_name)
 {
 	int fd;

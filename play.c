@@ -30,6 +30,7 @@ int forward = 0;
 int backward = 0;
 map_t * map;
 car_t * car;
+option_t * option;
 
 int key_u = 0;
 int key_d = 0;
@@ -136,34 +137,43 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 
 	SDL_GetRendererOutputSize(ctx->render,&sx,&sy);
 
-	min_x = max_x = car->x;
-	min_y = max_y = car->y;
+	if(option->zoom) {
+		min_x = max_x = car->x;
+		min_y = max_y = car->y;
 
-	if( car->futur_x < min_x )
-		min_x = car->futur_x;
-	if( car->futur_x > max_x )
-		max_x = car->futur_x;
-	if( car->futur_y < min_y )
-		min_y = car->futur_y;
-	if( car->futur_y > max_y )
-		max_y = car->futur_y;
+		if( car->futur_x < min_x )
+			min_x = car->futur_x;
+		if( car->futur_x > max_x )
+			max_x = car->futur_x;
+		if( car->futur_y < min_y )
+			min_y = car->futur_y;
+		if( car->futur_y > max_y )
+			max_y = car->futur_y;
 
-	dx = max_x - min_x;
-	dy = max_y - min_y;
+		dx = max_x - min_x;
+		dy = max_y - min_y;
 
-	sdl_set_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
-	sdl_set_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
+		sdl_set_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
+		sdl_set_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
 
-	// Zoom calculation
-	// sx/2 = Constant size in pixel to display on the screen: the distance on the screen between the car and it's futur postion
-	// have to be constant.
-	double distance = sqrt(dx*dx+dy*dy);
-	if( distance < 2.0 * car->w ) {
-		distance = 2.0 * car->w;
+		// Zoom calculation
+		// sx/2 = Constant size in pixel to display on the screen: the distance on the screen between the car and it's futur postion
+		// have to be constant.
+		double distance = sqrt(dx*dx+dy*dy);
+		if( distance < 2.0 * car->w ) {
+			distance = 2.0 * car->w;
+		}
+		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(distance)) ;
+		//wlog(LOGDEBUG,"zoom = %f",zoom);
+		sdl_set_virtual_z(zoom );
 	}
-	zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(distance)) ;
-	//wlog(LOGDEBUG,"zoom = %f",zoom);
-	sdl_set_virtual_z(zoom );
+	else {
+		sdl_force_virtual_x(UNIT_TO_PIX( car->x));
+		sdl_force_virtual_y(UNIT_TO_PIX( car->y));
+
+		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(7.0*car->w)) ;
+		sdl_force_virtual_z(zoom );
+	}
 }
 
 static void screen_display(sdl_context_t * ctx)
@@ -254,8 +264,9 @@ static void cb_key_down_up(void * arg)
 
 }
 
-void play(sdl_context_t * context, char * map_name, char ** car_name, int car_num)
+void play(sdl_context_t * context, char * map_name, char ** car_name, int car_num,option_t * o)
 {
+	option = o;
 	// Load graphics
 	item_t * item = NULL;
 	anim_t * anim[NUM_ANIM];
