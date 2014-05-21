@@ -54,7 +54,7 @@ void sdl_cleanup()
 
 void sdl_init(sdl_context_t * context)
 {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
 		werr(LOGUSER,"SDL init failed: %s.\n",SDL_GetError());
 		exit(EXIT_FAILURE);
 	}

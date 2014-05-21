@@ -22,8 +22,11 @@
 #include "data.h"
 
 #define NUM_ANIM 2
+#define MAX_JOY 64
 
 item_t * item_list = NULL;
+SDL_Joystick* joystick[MAX_JOY];
+int num_joy = 0;
 
 double angle_sign = 0.0;
 int forward = 0;
@@ -46,11 +49,30 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 	Uint32 time;
 	double t;
 	static Uint32 old_time = 0;
+	int joy_forward = 0;
+	int joy_backward = 0;
+	int joy_x = 0;
 
 	time = SDL_GetTicks();
 	t = (double)(time-old_time) / 1000.0;
-	car->a += t * car->ts * angle_sign;
-	if(forward) {
+
+	if(joystick[0]) {
+		joy_forward |= SDL_JoystickGetButton(joystick[0],0);
+		joy_backward |= SDL_JoystickGetButton(joystick[0],1);
+		joy_x = SDL_JoystickGetAxis(joystick[0], 0);
+	}
+
+	if( angle_sign) {
+		car->a += t * car->ts * angle_sign;
+	}
+	else {
+		// Limit jitter
+		if(joy_x > 1000 || joy_x < -1000) {
+			car->a += t * car->ts * (double)joy_x / 32767.0;
+		}
+	}
+
+	if(forward || joy_forward) {
 		/* Acceleration forward */
 		if(car->speed > 0.0) {
 			car->speed += t * car->accel ;
@@ -63,8 +85,8 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 			car->speed += t * car->decel ;
 		}
 	}
-	else if(backward) {
-		/* Accelaration backward */
+	else if(backward || joy_backward) {
+		/* Acceleration backward */
 		if(car->speed < 0.0) {
 			car->speed -= t * car->accel ;
 			if(car->speed < -car->max_speed) {
@@ -266,8 +288,22 @@ static void cb_key_down_up(void * arg)
 
 void play(sdl_context_t * context, char * map_name, char ** car_name, int car_num,option_t * o)
 {
+	SDL_Joystick* joy;
+
 	option = o;
-	// Load graphics
+
+	// Init Joysticks
+	while( (joy=SDL_JoystickOpen(num_joy)) != NULL ) {
+		joystick[num_joy] = joy;
+		wlog(LOGDEBUG,"Opened Joystick %d",num_joy);
+		wlog(LOGDEBUG,"Name: %s", SDL_JoystickNameForIndex(num_joy));
+		wlog(LOGDEBUG,"Number of Axes: %d", SDL_JoystickNumAxes(joystick[num_joy]));
+		wlog(LOGDEBUG,"Number of Buttons: %d", SDL_JoystickNumButtons(joystick[num_joy]));
+		wlog(LOGDEBUG,"Number of Balls: %d", SDL_JoystickNumBalls(joystick[num_joy]));
+		num_joy++;
+	}
+
+	// Init items
 	item_t * item = NULL;
 	anim_t * anim[NUM_ANIM];
 
@@ -289,9 +325,9 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int car_nu
 	item = item_list_add(item_list);
 	/* Starting line-up coord refer to the center of the vehicle, item coord refer to top/left picture */
 	item_set_anim(item,
-		map->start_x[0]-(anim[1]->w/2*car->w / map->w),
-		map->start_y[0]-(anim[1]->h/2*car->w / map->w),
-		anim[1]);
+			map->start_x[0]-(anim[1]->w/2*car->w / map->w),
+			map->start_y[0]-(anim[1]->h/2*car->w / map->w),
+			anim[1]);
 	item_set_zoom_x(item,car->w / map->w * (double)map->picture->w / (double)car->picture->w);
 	item_set_zoom_y(item,car->w / map->w * (double)map->picture->w / (double)car->picture->w);
 	car->x = PIX_TO_UNIT(map->start_x[0]);
