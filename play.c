@@ -142,7 +142,7 @@ static void calculate_new_pos(car_t * car, map_t * map)
 	item_set_angle(car->item,car->a);
 }
 
-static void set_display(sdl_context_t * ctx, car_t * car)
+static void set_display(sdl_context_t * ctx)
 {
 	double dx;
 	double dy;
@@ -150,47 +150,83 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 	double max_x;
 	double min_y;
 	double max_y;
+	double zoom_x;
+	double zoom_y;
 	double zoom;
 	int sx;
 	int sy;
+	int i;
+	double max_dimension = 0.0;
 
 	SDL_GetRendererOutputSize(ctx->render,&sx,&sy);
 
-	if(option->zoom) {
-		min_x = max_x = car->x;
-		min_y = max_y = car->y;
 
-		if( car->futur_x < min_x )
-			min_x = car->futur_x;
-		if( car->futur_x > max_x )
-			max_x = car->futur_x;
-		if( car->futur_y < min_y )
-			min_y = car->futur_y;
-		if( car->futur_y > max_y )
-			max_y = car->futur_y;
+	min_x = max_x = car[0]->x;
+	min_y = max_y = car[0]->y;
+
+	if(option->zoom) {
+		for(i=0;i<car_num;i++) {
+			max_dimension = car[i]->w;
+			if( max_dimension < car[i]->h ) {
+				max_dimension = car[i]->h;
+			}
+			if( car[i]->x - max_dimension < min_x )
+				min_x = car[i]->x - max_dimension;
+			if( car[i]->x + max_dimension > max_x )
+				max_x = car[i]->x + max_dimension;
+			if( car[i]->y - max_dimension < min_y )
+				min_y = car[i]->y - max_dimension;
+			if( car[i]->y + max_dimension > max_y )
+				max_y = car[i]->y + max_dimension;
+
+			if( car[i]->futur_x < min_x )
+				min_x = car[i]->futur_x ;
+			if( car[i]->futur_x > max_x )
+				max_x = car[i]->futur_x ;
+			if( car[i]->futur_y < min_y )
+				min_y = car[i]->futur_y ;
+			if( car[i]->futur_y > max_y )
+				max_y = car[i]->futur_y ;
+		}
 
 		dx = max_x - min_x;
 		dy = max_y - min_y;
 
 		sdl_set_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
 		sdl_set_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
+//		sdl_force_virtual_x(UNIT_TO_PIX( min_x + dx/2.0));
+//		sdl_force_virtual_y(UNIT_TO_PIX( min_y + dy/2.0));
 
 		// Zoom calculation
 		// sx/2 = Constant size in pixel to display on the screen: the distance on the screen between the car and it's futur postion
 		// have to be constant.
-		double distance = sqrt(dx*dx+dy*dy);
-		if( distance < 2.0 * car->w ) {
-			distance = 2.0 * car->w;
+		//double distance = sqrt(dx*dx+dy*dy);
+		//if( distance < 2.0 * car->w ) {
+		//	distance = 2.0 * car->w;
+		//}
+		//zoom = (double)(sx) / (double)( UNIT_TO_PIX(distance)) ;
+		zoom_x = 0.0;
+		zoom_y = 0.0;
+		if(dx) {
+			zoom_x = (double)(sx) / (double)( UNIT_TO_PIX(dx)) ;
 		}
-		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(distance)) ;
-		//wlog(LOGDEBUG,"zoom = %f",zoom);
+		if(dy) {
+			zoom_y = (double)(sy) / (double)( UNIT_TO_PIX(dy)) ;
+		}
+
+		zoom = zoom_x;
+		if(zoom_x > zoom_y ) {
+			zoom = zoom_y;
+		}
+		//wlog(LOGDEBUG,"zoom_x = %f, zoom_y = %f, zoom = %f",zoom_x,zoom_y,zoom);
 		sdl_set_virtual_z(zoom );
+		//sdl_force_virtual_z(zoom );
 	}
 	else {
-		sdl_force_virtual_x(UNIT_TO_PIX( car->x));
-		sdl_force_virtual_y(UNIT_TO_PIX( car->y));
+		sdl_force_virtual_x(UNIT_TO_PIX( car[0]->x));
+		sdl_force_virtual_y(UNIT_TO_PIX( car[0]->y));
 
-		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(7.0*car->w)) ;
+		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(7.0*car[0]->w)) ;
 		sdl_force_virtual_z(zoom );
 	}
 }
@@ -216,7 +252,7 @@ static void screen_display(sdl_context_t * ctx)
 			calculate_new_pos(car[i],map);
 		}
 
-		set_display(ctx,car[0]);
+		set_display(ctx);
 
                 SDL_RenderClear(ctx->render);
 
@@ -309,6 +345,10 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int num,op
 
 	option = o;
 	car_num = num;
+
+	if(car_num > 1) {
+		option->zoom = 1;
+	}
 
 	// Init Joysticks
 	while( (joy=SDL_JoystickOpen(num_joy)) != NULL ) {
