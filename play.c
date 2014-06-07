@@ -24,46 +24,43 @@
 #define NUM_ANIM 2
 #define MAX_JOY 64
 
+#define GLOBAL_KEY_NUM 2
+//player_key_t global_key[GLOBAL_KEY_NUM] = {{SDL_SCANCODE_UP,SDL_SCANCODE_DOWN,SDL_SCANCODE_LEFT,SDL_SCANCODE_RIGHT},{SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_Q,SDL_SCANCODE_D}};
+player_key_t global_key[GLOBAL_KEY_NUM] = {{SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_A,SDL_SCANCODE_D},{SDL_SCANCODE_UP,SDL_SCANCODE_DOWN,SDL_SCANCODE_LEFT,SDL_SCANCODE_RIGHT}};
+
 item_t * item_list = NULL;
 SDL_Joystick* joystick[MAX_JOY];
 int num_joy = 0;
 
-double angle_sign = 0.0;
-int forward = 0;
-int backward = 0;
 map_t * map;
-car_t * car;
+car_t ** car;
+int car_num;
 option_t * option;
 
-int key_u = 0;
-int key_d = 0;
-int key_l = 0;
-int key_r = 0;
 static void cb_key_left_down(void * arg);
 static void cb_key_right_down(void * arg);
 static void cb_key_up_down(void * arg);
 static void cb_key_down_down(void * arg);
 
-static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
+static void calculate_new_pos(car_t * car, map_t * map)
 {
 	Uint32 time;
 	double t;
-	static Uint32 old_time = 0;
 	int joy_forward = 0;
 	int joy_backward = 0;
 	int joy_x = 0;
 
 	time = SDL_GetTicks();
-	t = (double)(time-old_time) / 1000.0;
+	t = (double)(time-car->old_anim_time) / 1000.0;
 
-	if(joystick[0]) {
-		joy_forward |= SDL_JoystickGetButton(joystick[0],0);
-		joy_backward |= SDL_JoystickGetButton(joystick[0],1);
-		joy_x = SDL_JoystickGetAxis(joystick[0], 0);
+	if(car->joy) {
+		joy_forward |= SDL_JoystickGetButton(car->joy,0);
+		joy_backward |= SDL_JoystickGetButton(car->joy,1);
+		joy_x = SDL_JoystickGetAxis(car->joy, 0);
 	}
 
-	if( angle_sign) {
-		car->a += t * car->ts * angle_sign;
+	if( car->angle_sign) {
+		car->a += t * car->ts * car->angle_sign;
 	}
 	else {
 		// Limit jitter
@@ -72,7 +69,7 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 		}
 	}
 
-	if(forward || joy_forward) {
+	if(car->forward || joy_forward) {
 		/* Acceleration forward */
 		if(car->speed > 0.0) {
 			car->speed += t * car->accel ;
@@ -85,7 +82,7 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 			car->speed += t * car->decel ;
 		}
 	}
-	else if(backward || joy_backward) {
+	else if(car->backward || joy_backward) {
 		/* Acceleration backward */
 		if(car->speed < 0.0) {
 			car->speed -= t * car->accel ;
@@ -139,10 +136,10 @@ static void calculate_new_pos(item_t * item, car_t * car, map_t * map)
 	car->futur_x = car->x + cos((car->a + car->angle)  / 180.0 * M_PI) * car->speed * FUTUR_TIME;
 	car->futur_y = car->y + sin((car->a  + car->angle) / 180.0 * M_PI) * car->speed * FUTUR_TIME;
 
-	old_time = time;
+	car->old_anim_time = time;
 
-	item_set_pos(item,UNIT_TO_PIX(car->x - car->w/2.0),UNIT_TO_PIX(car->y - car->h/2.0));
-	item_set_angle(item,car->a);
+	item_set_pos(car->item,UNIT_TO_PIX(car->x - car->w/2.0),UNIT_TO_PIX(car->y - car->h/2.0));
+	item_set_angle(car->item,car->a);
 }
 
 static void set_display(sdl_context_t * ctx, car_t * car)
@@ -201,6 +198,7 @@ static void set_display(sdl_context_t * ctx, car_t * car)
 static void screen_display(sdl_context_t * ctx)
 {
         SDL_Event event;
+	int i;
 
         while( 1 ) {
 
@@ -214,9 +212,11 @@ static void screen_display(sdl_context_t * ctx)
                         sdl_keyboard_manager(&event);
                 }
 
-		calculate_new_pos(item_list->next,&car[0],map);
+		for(i=0;i<car_num;i++) {
+			calculate_new_pos(car[i],map);
+		}
 
-		set_display(ctx,&car[0]);
+		set_display(ctx,car[0]);
 
                 SDL_RenderClear(ctx->render);
 
@@ -232,65 +232,83 @@ static void screen_display(sdl_context_t * ctx)
 
 static void cb_key_left_down(void * arg)
 {
-	angle_sign = -1.0;
-	key_l = 1;
+	car_t * car = (car_t*)arg;
+
+	car->angle_sign = -1.0;
+	car->key_l = 1;
 }
 static void cb_key_left_up(void * arg)
 {
-	angle_sign = 0.0;
-	key_l = 0;
-	if(key_r) {
+	car_t * car = (car_t*)arg;
+
+	car->angle_sign = 0.0;
+	car->key_l = 0;
+	if(car->key_r) {
 		cb_key_right_down(arg);
 	}
 }
 static void cb_key_right_down(void * arg)
 {
-	angle_sign = 1.0;
-	key_r = 1;
+	car_t * car = (car_t*)arg;
+
+	car->angle_sign = 1.0;
+	car->key_r = 1;
 }
 static void cb_key_right_up(void * arg)
 {
-	angle_sign = 0.0;
-	key_r = 0;
-	if(key_l) {
+	car_t * car = (car_t*)arg;
+
+	car->angle_sign = 0.0;
+	car->key_r = 0;
+	if(car->key_l) {
 		cb_key_left_down(arg);
 	}
 }
 static void cb_key_up_down(void * arg)
 {
-	forward = 1;
-	backward = 0;
-	key_u = 1;
+	car_t * car = (car_t*)arg;
+
+	car->forward = 1;
+	car->backward = 0;
+	car->key_u = 1;
 }
 static void cb_key_up_up(void * arg)
 {
-	forward = 0;
-	key_u = 0;
-	if(key_d) {
+	car_t * car = (car_t*)arg;
+
+	car->forward = 0;
+	car->key_u = 0;
+	if(car->key_d) {
 		cb_key_down_down(arg);
 	}
 }
 static void cb_key_down_down(void * arg)
 {
-	backward = 1;
-	forward = 0;
-	key_d = 1;
+	car_t * car = (car_t*)arg;
+
+	car->backward = 1;
+	car->forward = 0;
+	car->key_d = 1;
 }
 static void cb_key_down_up(void * arg)
 {
-	backward = 0;
-	key_d = 0;
-	if(key_u) {
+	car_t * car = (car_t*)arg;
+
+	car->backward = 0;
+	car->key_d = 0;
+	if(car->key_u) {
 		cb_key_up_down(arg);
 	}
 
 }
 
-void play(sdl_context_t * context, char * map_name, char ** car_name, int car_num,option_t * o)
+void play(sdl_context_t * context, char * map_name, char ** car_name, int num,option_t * o)
 {
 	SDL_Joystick* joy;
+	int i;
 
 	option = o;
+	car_num = num;
 
 	// Init Joysticks
 	while( (joy=SDL_JoystickOpen(num_joy)) != NULL ) {
@@ -313,38 +331,50 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int car_nu
 		return;
 	}
 	anim[0] = map->picture;
-	car = data_load_car(context->render,car_name[0]);
-	if(car == NULL) {
-		werr(LOGUSER,"Cannot read car %s",car_name[0]);
-		return;
-	}
-	anim[1] = car->picture;
 
 	item_list = item_list_add(NULL);
 	item_set_anim(item_list,0,0,anim[0]);
-	item = item_list_add(item_list);
-	/* Starting line-up coord refer to the center of the vehicle, item coord refer to top/left picture */
-	item_set_anim(item,
-			map->start_x[0]-(anim[1]->w/2*car->w / map->w),
-			map->start_y[0]-(anim[1]->h/2*car->w / map->w),
-			anim[1]);
-	item_set_zoom_x(item,car->w / map->w * (double)map->picture->w / (double)car->picture->w);
-	item_set_zoom_y(item,car->w / map->w * (double)map->picture->w / (double)car->picture->w);
-	car->x = PIX_TO_UNIT(map->start_x[0]);
-	car->y = PIX_TO_UNIT(map->start_y[0]);
-	car->a = map->start_a[0] - car->angle;
-	item_set_angle(item, car->a);
 
-	sdl_set_virtual_x(item->rect.x);
-	sdl_set_virtual_y(item->rect.y);
-	sdl_set_virtual_z(6.0);
+	car = malloc(car_num*sizeof(car_t*));
 
-	sdl_free_keycb(NULL);
-	sdl_add_keycb(SDL_SCANCODE_LEFT,cb_key_left_down,cb_key_left_up);
-	sdl_add_keycb(SDL_SCANCODE_RIGHT,cb_key_right_down,cb_key_right_up);
-	sdl_add_keycb(SDL_SCANCODE_UP,cb_key_up_down,cb_key_up_up);
-	sdl_add_keycb(SDL_SCANCODE_DOWN,cb_key_down_down,cb_key_down_up);
+	for(i=0;i<car_num;i++) {
+		car[i] = data_load_car(context->render,car_name[i]);
+		if(car[i] == NULL) {
+			werr(LOGUSER,"Cannot read car %s",car_name[i]);
+			return;
+		}
+
+		anim[i+1] = car[i]->picture;
+
+		item = item_list_add(item_list);
+		/* Starting line-up coord refer to the center of the vehicle, item coord refer to top/left picture */
+		item_set_anim(item,
+				map->start_x[i]-(anim[i+1]->w/2*car[i]->w / map->w),
+				map->start_y[i]-(anim[i+1]->h/2*car[i]->w / map->w),
+				anim[i+1]);
+		item_set_zoom_x(item,car[i]->w / map->w * (double)map->picture->w / (double)car[i]->picture->w);
+		item_set_zoom_y(item,car[i]->w / map->w * (double)map->picture->w / (double)car[i]->picture->w);
+		car[i]->x = PIX_TO_UNIT(map->start_x[i]);
+		car[i]->y = PIX_TO_UNIT(map->start_y[i]);
+		car[i]->a = map->start_a[i] - car[i]->angle;
+		item_set_angle(item, car[i]->a);
+		car[i]->item = item;
+
+		sdl_set_virtual_x(item->rect.x);
+		sdl_set_virtual_y(item->rect.y);
+		sdl_set_virtual_z(6.0);
+
+		//Input
+		car[i]->joy = joystick[i];
+		//sdl_free_keycb(NULL);
+		sdl_add_keycb(global_key[i].up,cb_key_up_down,cb_key_up_up,car[i]);
+		sdl_add_keycb(global_key[i].down,cb_key_down_down,cb_key_down_up,car[i]);
+		sdl_add_keycb(global_key[i].left,cb_key_left_down,cb_key_left_up,car[i]);
+		sdl_add_keycb(global_key[i].right,cb_key_right_down,cb_key_right_up,car[i]);
+
+		car[i]->old_anim_time=0;
+	}
+	
 	//Run the main loop
 	screen_display(context);
-
 }

@@ -171,6 +171,16 @@ car_t * data_parse_car(SDL_Renderer * render,char * car_name)
 			if(strncmp(data,"engine_brake",strlen("engine_brake")) == 0) {
 				car->engine_brake = atof(data+strlen("engine_brake")+1);
 			}
+
+			car->angle_sign = 0.0;
+			car->key_u = 0;
+			car->key_d = 0;
+			car->key_l = 0;
+			car->key_r = 0;
+			car->forward = 0;
+			car->backward = 0;
+
+
 			index=-1;
 		}
 		index++;

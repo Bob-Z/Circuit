@@ -21,12 +21,21 @@
 #define DATA_H
 
 #include "anim.h"
+#include "item.h"
 
 #define UNIT_TO_PIX(a) ((a)  / map->w *(double) map->picture->w )
 #define PIX_TO_UNIT(a) ((a)  * map->w /(double) map->picture->w )
 
 // Number of seconds to forsee the position
 #define FUTUR_TIME (1.5)
+
+typedef struct player_key {
+	SDL_Scancode up;
+	SDL_Scancode down;
+	SDL_Scancode left;
+	SDL_Scancode right;
+} player_key_t;
+
 
 typedef struct map {
 	anim_t * picture;
@@ -43,6 +52,7 @@ typedef struct map {
 } map_t;
 
 typedef struct car {
+	item_t * item;
 	anim_t * picture;
 	/* Physical width e.g. 4 km.
 	This is independant of the picture pixel size (pixel may not be square
@@ -61,6 +71,17 @@ typedef struct car {
 	double speed;
 	double a; // orientation of the car during the game
 	double engine_brake; // in map_unit / second^2
+	SDL_Joystick* joy;
+	player_key_t * player_key;
+	//Variable used for dynamic behaviour
+	double angle_sign;
+	int key_u;
+	int key_d;
+	int key_l;
+	int key_r;
+	int forward;
+	int backward;
+	Uint32 old_anim_time;
 } car_t;
 
 typedef struct game_option {
