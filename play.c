@@ -33,7 +33,7 @@ SDL_Joystick* joystick[MAX_JOY];
 int num_joy = 0;
 
 map_t * map;
-car_t ** car;
+car_t ** all_car;
 int car_num;
 option_t * option;
 
@@ -41,6 +41,123 @@ static void cb_key_left_down(void * arg);
 static void cb_key_right_down(void * arg);
 static void cb_key_up_down(void * arg);
 static void cb_key_down_down(void * arg);
+
+/* Source: http://devmag.org.za/2009/04/13/basic-collision-detection-in-2d-part-1/ */
+static int collision(double A1x, double A1y, double A2x, double A2y, double B1x, double B1y, double B2x, double B2y)
+{
+	//wlog(LOGDEBUG," test A1(%f,%f) A2(%f,%f), B1(%f,%f) B2(%f,%f)",A1x,A1y,A2x,A2y,B1x,B1y,B2x,B2y);
+	double denom = ((B2y - B1y) * (A2x - A1x)) -
+		((B2x - B1x) * (A2y - A1y));
+
+	/* Lines are parallel */
+	if ( denom == 0.0 ) {
+		return 0;
+	}
+
+	double uA =  (((B2x - B1x)*(A1y - B1y))-((B2y - B1y)*(A1x - B1x)))/denom;
+	double uB =  (((A2x - A1x)*(A1y - B1y))-((A2y - A1y)*(A1x - B1x)))/denom;
+	wlog(LOGDEBUG,"uA = %f",uA);
+	wlog(LOGDEBUG,"uB = %f",uB);
+	if( uA < 1.0 && uA > 0.0 && uB < 1.0 && uB > 0.0 ) {
+		wlog(LOGDEBUG," test A1(%f,%f) A2(%f,%f), B1(%f,%f) B2(%f,%f)",A1x,A1y,A2x,A2y,B1x,B1y,B2x,B2y);
+		return 1;
+	}
+	return 0;
+}
+
+static int box_collision(double *Ax,double *Ay, double *Bx, double *By)
+{
+	int i;
+	int j;
+	int c;
+
+	for(i=0;i<4;i++) {
+		for(j=0;j<4;j++) {
+			c = collision(Ax[i],Ay[i],Ax[(i+1)%4],Ay[(i+1)%4],Bx[j],By[j],Bx[(j+1)%4],By[(j+1)%4]);
+			if(c) {
+				wlog(LOGDEBUG,"Collision");
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static int wall_collision(car_t * car)
+{
+	/* Map points*/
+	double Ax[4];
+	double Ay[4];
+
+	/* Car points*/
+	double Bx[4];
+	double By[4];
+
+	Ax[0] = 0.0;
+	Ay[0] = 0.0;
+	Ax[1] = map->w;
+	Ay[1] = 0.0;
+	Ax[2] = map->w;
+	Ay[2] = map->h;
+	Ax[3] = 0.0;
+	Ay[3] = map->h;
+
+	Bx[0] = (car->x - car->w / 2.0) * cos(car->a + car->angle);
+	By[0] = (car->y - car->h / 2.0) * sin(car->a + car->angle);
+	Bx[1] = (car->x + car->w / 2.0) * cos(car->a + car->angle);
+	By[1] = (car->y - car->h / 2.0) * sin(car->a + car->angle);
+	Bx[2] = (car->x + car->w / 2.0) * cos(car->a + car->angle);
+	By[2] = (car->y + car->h / 2.0) * sin(car->a + car->angle);
+	Bx[3] = (car->x - car->w / 2.0) * cos(car->a + car->angle);
+	By[3] = (car->y + car->h / 2.0) * sin(car->a + car->angle);
+
+	return box_collision(Ax,Ay,Bx,By);
+}
+
+static int car_collision(car_t * car1, car_t * car2)
+{
+	double angle;
+	double cos_angle;
+	double sin_angle;
+
+	/* Car1 points*/
+	double Ax[4];
+	double Ay[4];
+
+	/* Car2 points*/
+	double Bx[4];
+	double By[4];
+	car_t * car;
+
+	car=car1;
+	angle = (car->a + car->angle)/180.0*M_PI;
+	cos_angle = cos(angle);
+	sin_angle = sin(angle);
+	Ax[0] = (car->x) - car->w / 2.0 * cos_angle;
+	Ay[0] = (car->y) - car->h / 2.0 * sin_angle;
+	Ax[1] = (car->x) + car->w / 2.0 * cos_angle;
+	Ay[1] = (car->y) - car->h / 2.0 * sin_angle;
+	Ax[2] = (car->x) + car->w / 2.0 * cos_angle;
+	Ay[2] = (car->y) + car->h / 2.0 * sin_angle;
+	Ax[3] = (car->x) - car->w / 2.0 * cos_angle;
+	Ay[3] = (car->y) + car->h / 2.0 * sin_angle;
+
+	car=car2;
+	angle = (car->a + car->angle)/180.0*M_PI;
+	cos_angle = cos(angle);
+	sin_angle = sin(angle);
+	Bx[0] = (car->x) - car->w / 2.0 * cos_angle;
+	By[0] = (car->y) - car->h / 2.0 * sin_angle;
+	Bx[1] = (car->x) + car->w / 2.0 * cos_angle;
+	By[1] = (car->y) - car->h / 2.0 * sin_angle;
+	Bx[2] = (car->x) + car->w / 2.0 * cos_angle;
+	By[2] = (car->y) + car->h / 2.0 * sin_angle;
+	Bx[3] = (car->x) - car->w / 2.0 * cos_angle;
+	By[3] = (car->y) + car->h / 2.0 * sin_angle;
+
+	return box_collision(Ax,Ay,Bx,By);
+}
 
 static void calculate_new_pos(car_t * car, map_t * map)
 {
@@ -111,6 +228,15 @@ static void calculate_new_pos(car_t * car, map_t * map)
 	car->x += cos((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 	car->y += sin((car->a + car->angle) / 180.0 * M_PI) * car->speed * t;
 
+//	wall_collision(car);
+
+	int i;
+	for(i=0;i<car_num;i++) {
+		if( car != all_car[i] ) {
+			car_collision(car,all_car[i]);
+		}
+	}
+
 	int bounce = 0;
 	if(car->x < 0.0){
 		 car->x = 0.0;
@@ -161,32 +287,32 @@ static void set_display(sdl_context_t * ctx)
 	SDL_GetRendererOutputSize(ctx->render,&sx,&sy);
 
 
-	min_x = max_x = car[0]->x;
-	min_y = max_y = car[0]->y;
+	min_x = max_x = all_car[0]->x;
+	min_y = max_y = all_car[0]->y;
 
 	if(option->zoom) {
 		for(i=0;i<car_num;i++) {
-			max_dimension = car[i]->w;
-			if( max_dimension < car[i]->h ) {
-				max_dimension = car[i]->h;
+			max_dimension = all_car[i]->w;
+			if( max_dimension < all_car[i]->h ) {
+				max_dimension = all_car[i]->h;
 			}
-			if( car[i]->x - max_dimension < min_x )
-				min_x = car[i]->x - max_dimension;
-			if( car[i]->x + max_dimension > max_x )
-				max_x = car[i]->x + max_dimension;
-			if( car[i]->y - max_dimension < min_y )
-				min_y = car[i]->y - max_dimension;
-			if( car[i]->y + max_dimension > max_y )
-				max_y = car[i]->y + max_dimension;
+			if( all_car[i]->x - max_dimension < min_x )
+				min_x = all_car[i]->x - max_dimension;
+			if( all_car[i]->x + max_dimension > max_x )
+				max_x = all_car[i]->x + max_dimension;
+			if( all_car[i]->y - max_dimension < min_y )
+				min_y = all_car[i]->y - max_dimension;
+			if( all_car[i]->y + max_dimension > max_y )
+				max_y = all_car[i]->y + max_dimension;
 
-			if( car[i]->futur_x < min_x )
-				min_x = car[i]->futur_x ;
-			if( car[i]->futur_x > max_x )
-				max_x = car[i]->futur_x ;
-			if( car[i]->futur_y < min_y )
-				min_y = car[i]->futur_y ;
-			if( car[i]->futur_y > max_y )
-				max_y = car[i]->futur_y ;
+			if( all_car[i]->futur_x < min_x )
+				min_x = all_car[i]->futur_x ;
+			if( all_car[i]->futur_x > max_x )
+				max_x = all_car[i]->futur_x ;
+			if( all_car[i]->futur_y < min_y )
+				min_y = all_car[i]->futur_y ;
+			if( all_car[i]->futur_y > max_y )
+				max_y = all_car[i]->futur_y ;
 		}
 
 		dx = max_x - min_x;
@@ -223,10 +349,10 @@ static void set_display(sdl_context_t * ctx)
 		//sdl_force_virtual_z(zoom );
 	}
 	else {
-		sdl_force_virtual_x(UNIT_TO_PIX( car[0]->x));
-		sdl_force_virtual_y(UNIT_TO_PIX( car[0]->y));
+		sdl_force_virtual_x(UNIT_TO_PIX( all_car[0]->x));
+		sdl_force_virtual_y(UNIT_TO_PIX( all_car[0]->y));
 
-		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(7.0*car[0]->w)) ;
+		zoom = (double)(sx/2) / (double)( UNIT_TO_PIX(7.0*all_car[0]->w)) ;
 		sdl_force_virtual_z(zoom );
 	}
 }
@@ -249,7 +375,7 @@ static void screen_display(sdl_context_t * ctx)
                 }
 
 		for(i=0;i<car_num;i++) {
-			calculate_new_pos(car[i],map);
+			calculate_new_pos(all_car[i],map);
 		}
 
 		set_display(ctx);
@@ -375,44 +501,44 @@ void play(sdl_context_t * context, char * map_name, char ** car_name, int num,op
 	item_list = item_list_add(NULL);
 	item_set_anim(item_list,0,0,anim[0]);
 
-	car = malloc(car_num*sizeof(car_t*));
+	all_car = malloc(car_num*sizeof(car_t*));
 
 	for(i=0;i<car_num;i++) {
-		car[i] = data_load_car(context->render,car_name[i]);
-		if(car[i] == NULL) {
+		all_car[i] = data_load_car(context->render,car_name[i]);
+		if(all_car[i] == NULL) {
 			werr(LOGUSER,"Cannot read car %s",car_name[i]);
 			return;
 		}
 
-		anim[i+1] = car[i]->picture;
+		anim[i+1] = all_car[i]->picture;
 
 		item = item_list_add(item_list);
 		/* Starting line-up coord refer to the center of the vehicle, item coord refer to top/left picture */
 		item_set_anim(item,
-				map->start_x[i]-(anim[i+1]->w/2*car[i]->w / map->w),
-				map->start_y[i]-(anim[i+1]->h/2*car[i]->w / map->w),
+				map->start_x[i]-(anim[i+1]->w/2*all_car[i]->w / map->w),
+				map->start_y[i]-(anim[i+1]->h/2*all_car[i]->w / map->w),
 				anim[i+1]);
-		item_set_zoom_x(item,car[i]->w / map->w * (double)map->picture->w / (double)car[i]->picture->w);
-		item_set_zoom_y(item,car[i]->w / map->w * (double)map->picture->w / (double)car[i]->picture->w);
-		car[i]->x = PIX_TO_UNIT(map->start_x[i]);
-		car[i]->y = PIX_TO_UNIT(map->start_y[i]);
-		car[i]->a = map->start_a[i] - car[i]->angle;
-		item_set_angle(item, car[i]->a);
-		car[i]->item = item;
+		item_set_zoom_x(item,all_car[i]->w / map->w * (double)map->picture->w / (double)all_car[i]->picture->w);
+		item_set_zoom_y(item,all_car[i]->w / map->w * (double)map->picture->w / (double)all_car[i]->picture->w);
+		all_car[i]->x = PIX_TO_UNIT(map->start_x[i]);
+		all_car[i]->y = PIX_TO_UNIT(map->start_y[i]);
+		all_car[i]->a = map->start_a[i] - all_car[i]->angle;
+		item_set_angle(item, all_car[i]->a);
+		all_car[i]->item = item;
 
 		sdl_set_virtual_x(item->rect.x);
 		sdl_set_virtual_y(item->rect.y);
 		sdl_set_virtual_z(6.0);
 
 		//Input
-		car[i]->joy = joystick[i];
+		all_car[i]->joy = joystick[i];
 		//sdl_free_keycb(NULL);
-		sdl_add_keycb(global_key[i].up,cb_key_up_down,cb_key_up_up,car[i]);
-		sdl_add_keycb(global_key[i].down,cb_key_down_down,cb_key_down_up,car[i]);
-		sdl_add_keycb(global_key[i].left,cb_key_left_down,cb_key_left_up,car[i]);
-		sdl_add_keycb(global_key[i].right,cb_key_right_down,cb_key_right_up,car[i]);
+		sdl_add_keycb(global_key[i].up,cb_key_up_down,cb_key_up_up,all_car[i]);
+		sdl_add_keycb(global_key[i].down,cb_key_down_down,cb_key_down_up,all_car[i]);
+		sdl_add_keycb(global_key[i].left,cb_key_left_down,cb_key_left_up,all_car[i]);
+		sdl_add_keycb(global_key[i].right,cb_key_right_down,cb_key_right_up,all_car[i]);
 
-		car[i]->old_anim_time=0;
+		all_car[i]->old_anim_time=0;
 	}
 	
 	//Run the main loop
