@@ -1,0 +1,7 @@
+picture bourbonnais.jpg
+
+width 760.0
+
+start_x 1792
+start_y 1352
+start_a 180.0

@@ -1,0 +1,7 @@
+picture snowland.png
+
+width 240.0
+
+start_x 172
+start_y 1144
+start_a 270.0

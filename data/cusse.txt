@@ -1,0 +1,7 @@
+picture Cusses-Gorse.jpg
+
+width 400.0
+
+start_x 324
+start_y 550
+start_a 355.0

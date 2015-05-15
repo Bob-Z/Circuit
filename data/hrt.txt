@@ -1,0 +1,7 @@
+picture HRT_MP20120730-Layout.jpg
+
+width 1350.0
+
+start_x 1287
+start_y 113
+start_a 90.0

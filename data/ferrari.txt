@@ -1,0 +1,12 @@
+picture ferrari.gif
+
+width 4.52
+height 2.19
+angle 180.0
+
+turn_speed 90.0
+accel 10.0
+decel 30.0
+max_speed 84.7
+engine_brake 5.0
+

@@ -1,0 +1,12 @@
+picture car01.gif
+
+width 4.39
+height 2.315
+angle 180.0
+
+turn_speed 180.0
+accel 20.0
+decel 40.0
+max_speed 84.7
+engine_brake 5.0
+

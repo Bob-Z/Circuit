@@ -1,0 +1,6 @@
+picture hungaroring_circuit02.jpg
+width 1400.0
+
+start_x 1616
+start_y 3350
+start_a 218.0

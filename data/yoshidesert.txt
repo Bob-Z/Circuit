@@ -1,0 +1,7 @@
+picture yoshidesert.png
+
+width 200.0
+
+start_x 1476
+start_y 847
+start_a 270.0

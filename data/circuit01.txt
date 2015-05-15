@@ -1,0 +1,13 @@
+picture circuit01.jpg
+
+width 125.0
+
+start_x 1792
+start_y 1352
+start_a 180.0
+
+start_x 1792
+start_y 1357
+start_a 180.0
+
+bounce -0.7

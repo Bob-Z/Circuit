@@ -1,0 +1,12 @@
+picture vw.gif
+
+width 4.6
+height 2.3
+angle 0.0
+
+turn_speed 90.0
+accel 10.0
+decel 30.0
+max_speed 84.7
+engine_brake 5.0
+

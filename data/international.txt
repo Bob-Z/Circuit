@@ -1,0 +1,6 @@
+picture International-Length-Race-Circuit.gif.jpeg
+width 450.0
+
+start_x 750
+start_y 1206
+start_a 170.0

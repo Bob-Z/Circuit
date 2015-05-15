@@ -1,0 +1,7 @@
+picture Circuit_lezennes.jpg
+
+width 1000.0
+
+start_x 1555
+start_y 1172
+start_a 170.0
